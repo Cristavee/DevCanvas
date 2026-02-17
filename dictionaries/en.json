@@ -1,0 +1,22 @@
+{
+  "navigation": {
+    "home": "Home",
+    "search": "Search",
+    "work": "Work",
+    "profile": "Profile"
+  },
+  "home": {
+    "heroTitle": "Showcase your code visually.",
+    "heroSubtitle": "The portfolio repository for modern developers.",
+    "uploadBtn": "Upload Project"
+  },
+  "search": {
+  "placeholder": "Search projects, tags, or users...",
+  "filters": "Filters",
+  "language": "Language",
+  "popularity": "Sort By",
+  "latest": "Latest",
+  "mostLiked": "Most Liked",
+  "results": "Showing results for"
+}
+}

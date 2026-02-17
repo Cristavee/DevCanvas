@@ -1,0 +1,23 @@
+{
+  "navigation": {
+    "home": "Beranda",
+    "search": "Cari",
+    "work": "Karya",
+    "profile": "Profil"
+  },
+  "home": {
+    "heroTitle": "Pamerkan kode Anda secara visual.",
+    "heroSubtitle": "Repositori portofolio untuk pengembang modern.",
+    "uploadBtn": "Unggah Proyek"
+  },
+  "search": {
+  "placeholder": "Cari proyek, tag, atau pengguna...",
+  "filters": "Filter",
+  "language": "Bahasa",
+  "popularity": "Urutkan",
+  "latest": "Terbaru",
+  "mostLiked": "Paling Disukai",
+  "results": "Menampilkan hasil untuk"
+}
+
+}
