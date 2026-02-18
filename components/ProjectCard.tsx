@@ -63,7 +63,7 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
         {/* Code */}
         <div className="px-4 py-3 overflow-hidden">
           <pre className="text-[10px] font-mono leading-relaxed text-[#cdd6f4] opacity-90">
-            {lines.map((line, i) => (
+            {lines.map((line: string, i: number) => (
               <div key={i} className="flex">
                 <span className="text-[#6c7086] mr-3 select-none w-4 text-right flex-shrink-0">{i + 1}</span>
                 <span className="truncate">{line}</span>
