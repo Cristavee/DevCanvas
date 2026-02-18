@@ -1,82 +1,162 @@
 "use client";
-import React from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { lucario } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Heart, Code2, User2, ExternalLink } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import React, { useState } from "react";
+import { Heart, Copy, Check, MessageSquare, Bookmark, Share2, ExternalLink } from "lucide-react";
 
-interface ProjectCardProps {
-  project: {
-    title: string;
-    codeSnippet: string;
-    language: string;
-    author: { name: string; avatar?: string };
-    likes: string[];
-    tags: string[];
-  };
+interface Author { name?: string; }
+interface Project {
+  _id?: string | { toString(): string };
+  title?: string;
+  description?: string;
+  codeSnippet?: string;
+  language?: string;
+  tags?: string[];
+  likes?: string[];
+  author?: Author;
+  comments?: number;
 }
 
-export const ProjectCard = ({ project }: ProjectCardProps) => {
+const LANG_COLORS: Record<string, { bg: string; dot: string; label: string }> = {
+  TypeScript: { bg: 'bg-blue-500', dot: '#3B82F6', label: 'TS' },
+  JavaScript: { bg: 'bg-yellow-400', dot: '#FACC15', label: 'JS' },
+  Python: { bg: 'bg-emerald-500', dot: '#10B981', label: 'PY' },
+  Rust: { bg: 'bg-orange-500', dot: '#F97316', label: 'RS' },
+  Go: { bg: 'bg-cyan-500', dot: '#06B6D4', label: 'GO' },
+  CSS: { bg: 'bg-pink-500', dot: '#EC4899', label: 'CSS' },
+  HTML: { bg: 'bg-red-500', dot: '#EF4444', label: 'HTML' },
+  Java: { bg: 'bg-red-700', dot: '#B91C1C', label: 'JAVA' },
+};
+
+export const ProjectCard = ({ project }: { project: Project }) => {
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState((project.likes ?? []).length);
+  const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const code = project.codeSnippet ?? "// No preview available";
+  const language = project.language ?? "JavaScript";
+  const tags = project.tags ?? [];
+  const author = project.author ?? { name: "Unknown" };
+  const lang = LANG_COLORS[language] ?? { bg: 'bg-slate-500', dot: '#64748B', label: '?' };
+  const lines = code.split("\n").slice(0, 9);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    void navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLiked((prev) => { setLikeCount((c) => prev ? c - 1 : c + 1); return !prev; });
+  };
+
   return (
-    <Card className="group overflow-hidden border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1">
-      {/* Code Preview Area */}
-      <div className="relative h-48 overflow-hidden bg-[#2b3e50] border-b border-slate-200 dark:border-slate-800">
-        <div className="absolute top-3 left-4 flex gap-1.5 z-10">
-          <div className="w-3 h-3 rounded-full bg-red-500/80" />
-          <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-          <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer">
+
+      {/* CODE PREVIEW */}
+      <div className="relative h-48 overflow-hidden bg-[#0d1117] flex-shrink-0">
+        {/* Window chrome */}
+        <div className="flex items-center gap-1.5 px-4 py-2.5 bg-[#161b22] border-b border-white/5">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500/70 hover:bg-red-500 transition-colors" />
+          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70 hover:bg-yellow-500 transition-colors" />
+          <div className="w-2.5 h-2.5 rounded-full bg-green-500/70 hover:bg-green-500 transition-colors" />
+          <span className="ml-3 text-[10px] text-white/25 font-mono tracking-wider">{language.toLowerCase()}</span>
+          <div className="ml-auto flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: lang.dot }} />
+            <span className="text-[10px] font-mono text-white/30">{lang.label}</span>
+          </div>
         </div>
-        
-        <div className="text-[11px] pt-10 px-4 opacity-80 group-hover:opacity-100 transition-opacity">
-          <SyntaxHighlighter
-            language={project.language.toLowerCase()}
-            style={lucario}
-            customStyle={{ background: 'transparent', padding: 0, margin: 0 }}
+
+        <div className="px-4 py-3 overflow-hidden h-full">
+          <pre className="text-[10.5px] font-mono leading-[1.6] text-[#e6edf3]">
+            {lines.map((line: string, i: number) => (
+              <div key={i} className="flex gap-3">
+                <span className="text-[#484f58] select-none w-4 text-right flex-shrink-0 tabular-nums">{i + 1}</span>
+                <span className="text-[#e6edf3] opacity-85 truncate">{line || ' '}</span>
+              </div>
+            ))}
+          </pre>
+        </div>
+
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center gap-2 backdrop-blur-[2px]">
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium transition-colors border border-white/15"
           >
-            {project.codeSnippet.length > 150 
-              ? `${project.codeSnippet.substring(0, 150)}...` 
-              : project.codeSnippet}
-          </SyntaxHighlighter>
-        </div>
-        
-        {/* Glassmorphism Overlay on Hover */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-          <ExternalLink className="text-white w-8 h-8" />
+            {copied ? <Check size={13} /> : <Copy size={13} />}
+            {copied ? "Copied!" : "Copy"}
+          </button>
+          <button className="flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium transition-colors border border-white/15">
+            <ExternalLink size={13} />
+            View
+          </button>
         </div>
       </div>
 
-      <CardContent className="p-5">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 line-clamp-1">
-            {project.title}
+      {/* CONTENT */}
+      <div className="flex flex-col flex-1 p-4">
+        <div className="flex items-start justify-between gap-2 mb-1.5">
+          <h3 className="font-semibold text-sm text-foreground leading-snug line-clamp-2 flex-1">
+            {project.title ?? "Untitled Project"}
           </h3>
-          <Badge variant="secondary" className="bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 border-none">
-            {project.language}
-          </Badge>
-        </div>
-        
-        <div className="flex gap-2 flex-wrap">
-          {project.tags.slice(0, 3).map(tag => (
-            <span key={tag} className="text-xs text-slate-500 dark:text-slate-400">#{tag}</span>
-          ))}
-        </div>
-      </CardContent>
-
-      <CardFooter className="px-5 py-4 border-t border-slate-100 dark:border-slate-900 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
-            <User2 size={14} className="text-slate-500" />
-          </div>
-          <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-            {project.author.name}
+          <span className={`shrink-0 text-[10px] font-mono px-2 py-0.5 rounded-md text-white ${lang.bg}`}>
+            {lang.label}
           </span>
         </div>
-        <div className="flex items-center gap-1 text-slate-400 hover:text-red-500 transition-colors cursor-pointer">
-          <Heart size={18} />
-          <span className="text-xs font-semibold">{project.likes.length}</span>
+
+        {project.description && (
+          <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
+            {project.description}
+          </p>
+        )}
+
+        {tags.length > 0 && (
+          <div className="flex gap-1.5 flex-wrap mb-3">
+            {tags.slice(0, 3).map((tag: string) => (
+              <span
+                key={tag}
+                className="text-[10px] text-primary bg-primary/8 hover:bg-primary/15 px-2 py-0.5 rounded-full font-medium transition-colors cursor-pointer"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-[9px] font-bold shrink-0">
+              {(author.name ?? "?")[0].toUpperCase()}
+            </div>
+            <span className="text-xs text-muted-foreground font-medium truncate max-w-20">
+              {author.name ?? "Unknown"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-muted-foreground text-xs">
+              <MessageSquare size={13} />
+              <span>{project.comments ?? 0}</span>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); setSaved(s => !s); }}
+              className={`transition-colors ${saved ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+            >
+              <Bookmark size={14} fill={saved ? 'currentColor' : 'none'} />
+            </button>
+            <button
+              onClick={handleLike}
+              className={`flex items-center gap-1 transition-colors ${liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'}`}
+            >
+              <Heart size={14} fill={liked ? 'currentColor' : 'none'} />
+              <span className="text-xs font-semibold">{likeCount}</span>
+            </button>
+          </div>
         </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </article>
   );
 };

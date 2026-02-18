@@ -1,170 +1,104 @@
-# DevCanvas - Developer Portfolio Showcase Platform
+# DevCanvas v2.0 — Code Community Platform
 
-DevCanvas adalah platform showcase untuk developer yang memungkinkan mereka menampilkan proyek, code snippets, dan karya digital mereka dalam satu tempat yang terorganisir dan menarik.
+A modern community platform for developers to share code, join communities, and chat — like Reddit + Discord for coders.
 
-## 🚀 Fitur Utama
+## ✨ Features
 
-- 📱 **Responsive Design** - Tampilan optimal di semua perangkat
-- 🌍 **Multi-language** - Mendukung Bahasa Indonesia dan English
-- 🎨 **Dark Mode** - Theme gelap dan terang
-- 🔐 **Authentication** - Login dengan GitHub/Google menggunakan NextAuth
-- 📤 **Upload Projects** - Upload dan showcase karya developer
-- 🔍 **Search & Filter** - Cari proyek berdasarkan bahasa, tags, dan kategori
-- 👤 **User Profiles** - Profil personal untuk setiap developer
-- 🛡️ **Admin Dashboard** - Panel admin untuk moderasi konten
+### 🏠 Feed & Discovery
+- Beautiful card-based code snippet feed with syntax preview
+- Trending page with most-liked snippets
+- Full-text search with language filters
+- Follow system and personalized following feed
 
-## 🛠️ Tech Stack
+### 👥 Communities
+- Language-specific communities (JavaScript, Python, Rust, etc.)
+- Community discovery with member counts
+- Create your own communities
 
-- **Framework**: Next.js 14.2 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui
+### 💬 Chat System
+- **Private DMs** — Direct messaging with any developer
+- **Group Chats** — Multi-person conversations
+- **Channels** — Public community discussion channels
+- Real-time message delivery with read receipts
+- Online presence indicators
+
+### 📝 Code Sharing
+- Share snippets with syntax highlighting preview
+- Multi-language support (15+ languages)
+- Like, save, and comment on snippets
+- Public/Private visibility control
+- Tags and categorization
+
+### 🔐 Authentication
+- Email/password registration
+- GitHub OAuth
+- Secure sessions with NextAuth.js
+
+## 🛠 Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
 - **Database**: MongoDB with Mongoose
-- **Authentication**: NextAuth.js
-- **Cloud Storage**: Cloudinary
-- **Deployment**: Vercel
+- **Auth**: NextAuth.js
+- **Styling**: Tailwind CSS + DM Sans font
+- **Real-time**: Socket.IO (for production chat)
+- **Image upload**: Cloudinary
+- **State**: Zustand
 
-## 📋 Prerequisites
-
-Sebelum memulai, pastikan Anda memiliki:
-
-- Node.js 18+ terinstall
-- MongoDB Atlas account (atau MongoDB local)
-- Cloudinary account untuk image upload
-- GitHub OAuth App (optional, untuk login)
-- Google OAuth App (optional, untuk login)
-
-## 🔧 Installation
-
-### 1. Clone Repository
+## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/Cristavee/DevCanvas.git
-cd DevCanvas
-```
-
-### 2. Install Dependencies
-
-```bash
+# 1. Install dependencies
 npm install
-```
 
-### 3. Setup Environment Variables
+# 2. Copy env file
+cp .env.example .env.local
 
-Buat file `.env.local` di root directory:
+# 3. Fill in your environment variables
+# - MONGODB_URI (MongoDB Atlas or local)
+# - NEXTAUTH_SECRET (random 32+ char string)
+# - GITHUB_ID/SECRET (optional, for GitHub login)
 
-```env
-# MongoDB Connection
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/devcanvas?retryWrites=true&w=majority
-
-# NextAuth Configuration
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key-generate-with-openssl-rand-base64-32
-
-# Cloudinary Configuration
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-
-# GitHub OAuth (Optional)
-GITHUB_ID=your-github-oauth-id
-GITHUB_SECRET=your-github-oauth-secret
-
-# Google OAuth (Optional)
-GOOGLE_ID=your-google-oauth-id
-GOOGLE_SECRET=your-google-oauth-secret
-```
-
-### 4. Generate NextAuth Secret
-
-```bash
-openssl rand -base64 32
-```
-
-Copy hasilnya ke `NEXTAUTH_SECRET`
-
-### 5. Run Development Server
-
-```bash
+# 4. Run development server
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000)
-
-## 🚀 Deploy ke Vercel
-
-### Quick Deploy
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Cristavee/DevCanvas)
-
-### Manual Deploy
-
-1. Push code ke GitHub repository
-2. Import project di [Vercel Dashboard](https://vercel.com/new)
-3. Connect dengan GitHub repository
-4. Tambahkan Environment Variables di Vercel:
-   - `MONGODB_URI`
-   - `NEXTAUTH_URL` (gunakan production URL)
-   - `NEXTAUTH_SECRET`
-   - `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
-   - `CLOUDINARY_API_KEY`
-   - `CLOUDINARY_API_SECRET`
-5. Deploy!
+Visit http://localhost:3000/en
 
 ## 📁 Project Structure
 
 ```
-DevCanvas/
-├── app/                      # Next.js App Router
-│   ├── [lang]/              # Multi-language routes
-│   │   ├── page.tsx         # Home page
-│   │   ├── upload/          # Upload project page
-│   │   ├── search/          # Search page
-│   │   ├── profile/         # User profile
-│   │   └── admin/           # Admin dashboard
-│   ├── api/                 # API routes
-│   │   ├── auth/            # NextAuth endpoints
-│   │   └── projects/        # Project CRUD endpoints
-│   └── globals.css          # Global styles
-├── components/              # React components
-│   ├── ui/                  # shadcn/ui components
-│   ├── layout/              # Layout components
-│   ├── admin/               # Admin components
-│   └── modals/              # Modal components
-├── lib/                     # Utility functions
-│   ├── mongodb.ts           # MongoDB connection
-│   ├── utils.ts             # Helper functions
-│   └── get-dictionary.ts    # i18n utilities
-├── models/                  # Mongoose models
-│   ├── User.ts
-│   └── Project.ts
-├── dictionaries/            # i18n translations
-│   ├── en.json
-│   └── id.json
-└── middleware.ts            # Next.js middleware
+app/
+├── [lang]/          # Internationalized routes
+│   ├── page.tsx     # Home feed
+│   ├── search/      # Explore & search
+│   ├── trending/    # Trending snippets
+│   ├── community/   # Community listing + pages
+│   ├── chat/        # Messaging (DMs, groups, channels)
+│   ├── upload/      # Share code snippet
+│   ├── profile/     # User profile
+│   ├── saved/       # Bookmarked snippets
+│   ├── following/   # Following feed
+│   └── auth/        # Sign in / Sign up
+├── api/             # API routes
+components/
+├── ProjectCard.tsx  # Code snippet card
+├── layout/          # Layout components
+├── ui/              # Shadcn UI components
+models/
+├── User.ts          # User model
+├── Project.ts       # Snippet model
+├── Message.ts       # Chat message model
+├── Conversation.ts  # Chat room model
+└── Community.ts     # Community model
 ```
 
-## 🐛 Troubleshooting
+## 🌐 Deployment
 
-### Error: Module not found
+Deploy to Vercel with one click:
 
-Pastikan semua dependencies terinstall dengan `npm install`
+1. Push to GitHub
+2. Import to Vercel
+3. Add environment variables
+4. Deploy!
 
-### MongoDB Connection Error
-
-1. Whitelist IP di MongoDB Atlas
-2. Cek connection string format
-3. Pastikan database user memiliki permission
-
-### Vercel Build Error
-
-1. Set environment variables di Vercel
-2. Pastikan Next.js version up to date
-3. Review build logs
-
-## 📝 License
-
-MIT License
-
-## 👨‍💻 Author
-
-Created by [Cristavee](https://github.com/Cristavee)
+See DEPLOYMENT.md for detailed instructions.
