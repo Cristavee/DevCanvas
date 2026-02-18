@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth";
 import dbConnect from '@/lib/mongodb';
 import Project from '@/models/Project';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // Assuming you exported this
+import { authOptions } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
