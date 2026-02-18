@@ -2,7 +2,7 @@ import "../globals.css";
 import type { ReactNode } from "react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NavClient } from "@/components/layout/NavClient";
+import { Shell } from "@/components/layout/Shell";
 
 export default async function LangLayout({
   children,
@@ -14,9 +14,5 @@ export default async function LangLayout({
   let session = null;
   try { session = await getServerSession(authOptions); } catch {}
 
-  return (
-    <NavClient lang={params.lang} session={session}>
-      {children}
-    </NavClient>
-  );
+  return <Shell lang={params.lang} session={session}>{children}</Shell>;
 }

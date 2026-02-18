@@ -1,30 +1,73 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextRequest } from "next/server";
+import { ok, err, unauthorized, notFound, serverError, requireAuth, sanitize } from "@/lib/api";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
 
-export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+// GET /api/projects/:id
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    await dbConnect();
+    const project = await Project.findById(params.id)
+      .populate("author", "name avatar xp tier bio")
+      .lean();
+    if (!project) return notFound("Project");
 
-  await dbConnect();
-  await Project.findByIdAndDelete(params.id);
-  return NextResponse.json({ success: true });
+    // Increment view count (fire and forget)
+    Project.findByIdAndUpdate(params.id, { $inc: { views: 1 } }).exec();
+
+    return ok(sanitize(project));
+  } catch (e) {
+    return serverError(e);
+  }
 }
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+// DELETE /api/projects/:id — owner only
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await requireAuth();
+  if (!session) return unauthorized();
 
-  const body = await req.json() as Record<string, unknown>;
-  await dbConnect();
-  const project = await Project.findByIdAndUpdate(params.id, body, { new: true });
-  return NextResponse.json(project);
+  try {
+    await dbConnect();
+    const project = await Project.findById(params.id);
+    if (!project) return notFound("Project");
+
+    const userId = (session.user as any).id;
+    const role   = (session.user as any).role;
+    if (project.author.toString() !== userId && role !== "admin") {
+      return err("Forbidden", 403);
+    }
+
+    await project.deleteOne();
+    return ok({ deleted: true });
+  } catch (e) {
+    return serverError(e);
+  }
+}
+
+// PATCH /api/projects/:id — update (owner only)
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await requireAuth();
+  if (!session) return unauthorized();
+
+  try {
+    await dbConnect();
+    const project = await Project.findById(params.id);
+    if (!project) return notFound("Project");
+
+    const userId = (session.user as any).id;
+    if (project.author.toString() !== userId) return err("Forbidden", 403);
+
+    const body = await req.json();
+    const allowed = ["title", "description", "codeSnippet", "language", "tags", "visibility"];
+    const updates: any = {};
+    for (const k of allowed) {
+      if (body[k] !== undefined) updates[k] = body[k];
+    }
+
+    const updated = await Project.findByIdAndUpdate(params.id, updates, { new: true })
+      .populate("author", "name avatar xp tier");
+    return ok(sanitize(updated));
+  } catch (e) {
+    return serverError(e);
+  }
 }

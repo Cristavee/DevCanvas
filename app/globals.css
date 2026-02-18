@@ -4,146 +4,250 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────
+   ROOT RESET & VIEWPORT FIX
+   ───────────────────────────────────────── */
+html {
+  /* Prevent text size adjust on orientation change (iOS) */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Force correct box sizing everywhere */
+  box-sizing: border-box;
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  /* Use logical pixel width, not physical */
+  width: 100%;
+  height: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  /* Critical: prevent horizontal overflow on ALL devices */
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+/* ─────────────────────────────────────────
+   CSS VARIABLES — LIGHT THEME
+   ───────────────────────────────────────── */
 :root {
-  --radius: 0.5rem;
-  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
+  --radius: 0.625rem;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Geist Mono', 'Fira Code', 'JetBrains Mono', monospace;
 
-  /* LIGHT THEME */
-  --background: 210 20% 98%;
-  --surface: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --muted: 214 32% 91%;
-  --muted-foreground: 215 20% 45%;
-  --border: 214 32% 89%;
-  --input: 214 32% 91%;
-  --ring: 164 100% 38%;
-  --primary: 164 100% 38%;
-  --primary-foreground: 0 0% 100%;
-  --accent: 210 100% 56%;
-  --accent-foreground: 0 0% 100%;
-  --secondary: 214 32% 91%;
-  --secondary-foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  --destructive: 0 80% 58%;
-  --destructive-foreground: 0 0% 100%;
-  --success: 142 70% 42%;
-  --warning: 38 92% 50%;
-  --sidebar-bg: 210 20% 97%;
-  --sidebar-border: 214 32% 90%;
-  --neon-green: #00C991;
-  --electric-blue: #3B9EFF;
-  --neon-green-dim: rgba(0, 201, 145, 0.1);
-  --electric-blue-dim: rgba(59, 158, 255, 0.1);
-}
-
-.dark {
-  --background: 222 47% 6%;
-  --surface: 222 41% 9%;
-  --foreground: 210 40% 96%;
-  --muted: 222 30% 14%;
+  --background:       222 47% 6%;
+  --surface:          222 41% 9%;
+  --foreground:       210 40% 96%;
+  --muted:            222 30% 14%;
   --muted-foreground: 215 20% 52%;
-  --border: 222 28% 16%;
-  --input: 222 28% 16%;
-  --ring: 164 100% 42%;
-  --primary: 164 100% 42%;
+  --border:           222 28% 16%;
+  --input:            222 28% 16%;
+  --ring:             164 100% 42%;
+  --primary:          164 100% 50%;
   --primary-foreground: 222 47% 6%;
-  --accent: 210 100% 60%;
+  --accent:           210 100% 60%;
   --accent-foreground: 222 47% 6%;
-  --secondary: 222 30% 14%;
+  --secondary:        222 30% 14%;
   --secondary-foreground: 210 40% 92%;
-  --card: 222 41% 9%;
-  --card-foreground: 210 40% 96%;
-  --popover: 222 41% 11%;
+  --card:             222 41% 9%;
+  --card-foreground:  210 40% 96%;
+  --popover:          222 38% 10%;
   --popover-foreground: 210 40% 96%;
-  --destructive: 0 72% 55%;
+  --destructive:      0 72% 55%;
   --destructive-foreground: 0 0% 100%;
-  --success: 142 65% 48%;
-  --warning: 38 88% 55%;
-  --sidebar-bg: 222 47% 5%;
-  --sidebar-border: 222 28% 13%;
-  --neon-green: #00FFB3;
-  --electric-blue: #4DABFF;
-  --neon-green-dim: rgba(0, 255, 179, 0.08);
-  --electric-blue-dim: rgba(77, 171, 255, 0.08);
+  --success:          142 65% 48%;
+  --warning:          38 88% 55%;
+  --sidebar-bg:       222 50% 4%;
+  --sidebar-border:   222 28% 12%;
+
+  /* Accent colors */
+  --neon: #00FFB3;
+  --neon-dim: rgba(0, 255, 179, 0.08);
+  --neon-glow: rgba(0, 255, 179, 0.25);
+  --blue: #4DABFF;
+  --blue-dim: rgba(77, 171, 255, 0.08);
+
+  /* Layout dimensions */
+  --sidebar-width: 240px;
+  --header-h: 52px;
+  --bottomnav-h: 56px;
 }
 
-* { @apply border-border; box-sizing: border-box; }
-html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-body { font-family: var(--font-sans); background-color: hsl(var(--background)); color: hsl(var(--foreground)); }
-
-::-webkit-scrollbar { width: 4px; height: 4px; }
+/* ─────────────────────────────────────────
+   SCROLLBAR
+   ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 9999px; }
 
-@keyframes fadeSlideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-@keyframes shimmer { 100% { transform: translateX(100%); } }
-@keyframes scanline { 0% { top: -10%; } 100% { top: 110%; } }
-@keyframes pulse-neon { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-.animate-fade-slide-up { animation: fadeSlideUp 0.3s ease-out forwards; }
-.animate-fade-in { animation: fadeIn 0.2s ease-out; }
-.animate-scale-in { animation: scaleIn 0.2s ease-out; }
-.animate-pulse-neon { animation: pulse-neon 2s ease-in-out infinite; }
-
-.glass { background: hsl(var(--surface) / 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-.grid-pattern { background-image: linear-gradient(hsl(var(--border) / 0.5) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / 0.5) 1px, transparent 1px); background-size: 32px 32px; }
-.dot-pattern { background-image: radial-gradient(circle, hsl(var(--border) / 0.7) 1px, transparent 1px); background-size: 20px 20px; }
-.status-online { background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green); }
-.status-offline { background: hsl(var(--muted-foreground) / 0.5); }
-
-/* ─── Responsive layout helpers ─── */
-/* Desktop: sidebar 240px, topbar ~56px */
-/* Mobile: bottom nav 56px, top header 56px */
-
-.safe-area-pb { padding-bottom: env(safe-area-inset-bottom, 0px); }
-.h-safe-area-inset-bottom { height: env(safe-area-inset-bottom, 0px); }
-
-/* Chat page full height on all screens */
-.chat-full {
-  height: calc(100vh - 56px - 56px); /* mobile: minus topbar + bottomnav */
+/* ─────────────────────────────────────────
+   GLASS EFFECT
+   ───────────────────────────────────────── */
+.glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(7, 9, 18, 0.85);
+  border-bottom: 1px solid hsl(var(--border));
 }
+
+/* ─────────────────────────────────────────
+   NEON STATUS DOTS
+   ───────────────────────────────────────── */
+.dot-online {
+  background: var(--neon);
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 6px var(--neon);
+}
+.dot-offline { background: hsl(var(--muted-foreground)); }
+
+/* ─────────────────────────────────────────
+   GRID / DOT PATTERNS
+   ───────────────────────────────────────── */
+.grid-pattern {
+  background-image:
+    linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.dot-pattern {
+  background-image: radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ─────────────────────────────────────────
+   ANIMATIONS
+   ───────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes slideRight {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+@keyframes neonPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.animate-fade-up  { animation: fadeUp 0.3s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.2s ease-out forwards; }
+.animate-neon     { animation: neonPulse 2s ease-in-out infinite; }
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--border)) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius);
+}
+
+/* ─────────────────────────────────────────
+   MOBILE LAYOUT STRUCTURE
+   ───────────────────────────────────────── */
+
+/* On mobile: content fills full width */
+.layout-content {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* On desktop: content shifts right of sidebar */
 @media (min-width: 1024px) {
-  .chat-full {
-    height: calc(100vh - 56px); /* desktop: minus topbar only */
+  .layout-content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    max-width: calc(100% - var(--sidebar-width));
   }
 }
 
-/* Scrollbar none */
-.scrollbar-none::-webkit-scrollbar { display: none; }
-.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* Better responsive text clamp */
-@media (max-width: 640px) {
-  .hero-title { font-size: 1.875rem; line-height: 1.1; }
+/* Mobile inner padding accounting for header + bottom nav */
+.page-padding-mobile {
+  padding-top: calc(var(--header-h) + 12px);
+  padding-bottom: calc(var(--bottomnav-h) + 12px);
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
-/* neon-green-dim as inline color bg */
-.bg-neon-dim { background: var(--neon-green-dim); }
-.bg-blue-dim { background: var(--electric-blue-dim); }
-
-/* ─── Landscape mobile fix ─── */
-@media (max-height: 500px) and (orientation: landscape) {
-  /* Reduce sidebar vertical spacing in landscape */
-  .landscape-compact { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-  /* Bottom nav slightly smaller */
-  nav.fixed.bottom-0 { height: 48px; }
+@media (min-width: 1024px) {
+  .page-padding-mobile {
+    padding-top: calc(var(--header-h) + 24px);
+    padding-bottom: 32px;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
 }
 
-/* ─── Desktop layout breakpoints ─── */
-/* xs: 0-639px, sm: 640-767px, md: 768-1023px, lg: 1024px+ */
+/* ─────────────────────────────────────────
+   FONT ALIASES
+   ───────────────────────────────────────── */
+.font-sans { font-family: var(--font-sans); }
+.font-mono { font-family: var(--font-mono); }
 
-/* Tablet: sidebar collapses to icons-only */
-@media (min-width: 768px) and (max-width: 1023px) {
-  /* lg:hidden shows mobile header; tablet shows hamburger too */
+/* ─────────────────────────────────────────
+   TOUCH IMPROVEMENTS
+   ───────────────────────────────────────── */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-/* Ensure content doesn't go under bottom nav on mobile */
-@media (max-width: 1023px) {
-  main { padding-bottom: 4.5rem; }
+/* Minimum touch target size (WCAG 2.5.5) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+/* ─────────────────────────────────────────
+   CODE BLOCK
+   ───────────────────────────────────────── */
+.code-window {
+  background: #0d1117;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid #30363d;
+}
+.code-titlebar {
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.traffic-light { width: 10px; height: 10px; border-radius: 50%; }
+.tl-red    { background: #FF5F57; }
+.tl-yellow { background: #FEBC2E; }
+.tl-green  { background: #28C840; }

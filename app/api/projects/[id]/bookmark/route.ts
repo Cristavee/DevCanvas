@@ -14,21 +14,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const project = await Project.findById(params.id);
     if (!project) return notFound("Project");
 
-    const userId = new Types.ObjectId((session.user as any).id);
-    const liked  = project.likes.some((id: any) => id.equals(userId));
+    const userId   = new Types.ObjectId((session.user as any).id);
+    const bookmarked = project.bookmarks?.some((id: any) => id.equals(userId));
 
-    if (liked) {
-      project.likes.pull(userId);
+    if (bookmarked) {
+      project.bookmarks?.pull(userId);
+      await User.findByIdAndUpdate(userId, { $pull: { savedProjects: project._id } });
     } else {
-      project.likes.push(userId);
-      // Award +5 XP to author on like (if not self-like)
-      if (project.author.toString() !== userId.toString()) {
-        await User.findByIdAndUpdate(project.author, { $inc: { xp: 5 } });
-      }
+      project.bookmarks?.push(userId);
+      await User.findByIdAndUpdate(userId, { $addToSet: { savedProjects: project._id } });
     }
     await project.save();
 
-    return ok({ liked: !liked, likeCount: project.likes.length });
+    return ok({ bookmarked: !bookmarked, bookmarkCount: project.bookmarks?.length ?? 0 });
   } catch (e) {
     return serverError(e);
   }

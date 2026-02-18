@@ -1,90 +1,111 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextRequest } from "next/server";
+import { ok, err, unauthorized, serverError, requireAuth, paginate, sanitize } from "@/lib/api";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
 import User from "@/models/User";
 
-export async function GET(req: Request) {
+// GET /api/projects — public feed with filtering, sorting, pagination
+export async function GET(req: NextRequest) {
   try {
     await dbConnect();
-    const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "12");
-    const lang = searchParams.get("language");
-    const search = searchParams.get("q");
-    const sort = searchParams.get("sort") || "createdAt";
+    const sp = req.nextUrl.searchParams;
+    const { page, limit, skip } = paginate(sp);
+    const lang    = sp.get("language");
+    const q       = sp.get("q")?.trim();
+    const sort    = sp.get("sort") || "new"; // new | hot | top
+    const authorId = sp.get("author");
 
-    const query: any = { visibility: "Public" };
-    if (lang) query.language = lang;
-    if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { tags: { $in: [new RegExp(search, "i")] } },
+    // Base filter: only public projects
+    const filter: any = { visibility: "Public" };
+    if (lang)     filter.language = lang;
+    if (authorId) filter.author   = authorId;
+    if (q) {
+      // Full-text search if index available, else regex
+      filter.$or = [
+        { title:       { $regex: q, $options: "i" } },
+        { description: { $regex: q, $options: "i" } },
+        { tags:        { $regex: q, $options: "i" } },
       ];
     }
 
-    const sortObj: any = sort === "likes" ? { "likes.length": -1 } : { [sort]: -1 };
+    // Sort strategy
+    const sortMap: Record<string, any> = {
+      new:  { createdAt: -1 },
+      hot:  { views: -1, createdAt: -1 },
+      top:  { "likes": -1, createdAt: -1 }, // sort by array length approximation
+    };
+    const sortObj = sortMap[sort] ?? { createdAt: -1 };
 
-    const [projects, total] = await Promise.all([
-      Project.find(query)
+    const [docs, total] = await Promise.all([
+      Project.find(filter)
         .sort(sortObj)
-        .skip((page - 1) * limit)
+        .skip(skip)
         .limit(limit)
-        .populate("author", "name avatar xp tier")
+        .populate("author", "name avatar xp tier role")
         .lean(),
-      Project.countDocuments(query),
+      Project.countDocuments(filter),
     ]);
 
-    return NextResponse.json({
-      projects: JSON.parse(JSON.stringify(projects)),
-      total,
-      page,
-      pages: Math.ceil(total / limit),
+    return ok({
+      projects: sanitize(docs),
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (e) {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return serverError(e);
   }
 }
 
-export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized — please sign in" }, { status: 401 });
-  }
+// POST /api/projects — create new snippet (auth required)
+export async function POST(req: NextRequest) {
+  const session = await requireAuth();
+  if (!session) return unauthorized();
 
   try {
     await dbConnect();
     const body = await req.json();
     const { title, description, codeSnippet, language, tags, visibility } = body;
 
-    if (!title || !codeSnippet || !language) {
-      return NextResponse.json({ error: "Title, code, and language are required" }, { status: 400 });
-    }
+    // Validation
+    if (!title?.trim())       return err("Title is required");
+    if (!codeSnippet?.trim()) return err("Code is required");
+    if (!language?.trim())    return err("Language is required");
+    if (title.trim().length > 120) return err("Title too long (max 120 chars)");
 
-    const user = await User.findById((session.user as any).id);
-    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-    if (user.isBanned) return NextResponse.json({ error: "Account banned" }, { status: 403 });
+    // Check user exists and not banned
+    const userId = (session.user as any).id;
+    const user   = await User.findById(userId);
+    if (!user)           return err("User not found", 404);
+    if (user.isBanned)   return err("Account suspended", 403);
+
+    // Parse tags
+    const parsedTags = tags
+      ? String(tags).split(",").map((t: string) => t.trim().toLowerCase()).filter(Boolean).slice(0, 10)
+      : [];
 
     const project = await Project.create({
-      title: title.trim(),
+      title:       title.trim(),
       description: description?.trim() || "",
       codeSnippet: codeSnippet.trim(),
-      language,
-      tags: tags ? tags.split(",").map((t: string) => t.trim()).filter(Boolean) : [],
-      visibility: visibility || "Public",
-      author: user._id,
+      language:    language.trim(),
+      tags:        parsedTags,
+      visibility:  visibility === "Private" ? "Private" : "Public",
+      author:      user._id,
     });
 
-    // Award XP for posting
-    await User.findByIdAndUpdate(user._id, { $inc: { xp: 50 } });
+    // Award XP (+50) and update streak
+    const today = new Date();
+    const last  = user.lastActiveDate ? new Date(user.lastActiveDate) : null;
+    const isNewDay = !last || today.toDateString() !== last.toDateString();
+    const streakIncrement = isNewDay ? 1 : 0;
+
+    await User.findByIdAndUpdate(user._id, {
+      $inc: { xp: 50, streak: streakIncrement },
+      lastActiveDate: today,
+    });
 
     await project.populate("author", "name avatar xp tier");
-
-    return NextResponse.json(JSON.parse(JSON.stringify(project)), { status: 201 });
+    return ok(sanitize(project), 201);
   } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return serverError(e);
   }
 }
