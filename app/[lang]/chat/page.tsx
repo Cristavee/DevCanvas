@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import {
   Send, Search, Plus, Phone, Video, MoreHorizontal, Hash, Lock,
   Users, ChevronRight, Smile, Paperclip, Image as ImageIcon,
-  ArrowLeft, Settings, UserPlus, Circle
+  ArrowLeft, Settings, UserPlus, Circle, MessageSquare
 } from "lucide-react";
 
 /* ─── Types ─── */
