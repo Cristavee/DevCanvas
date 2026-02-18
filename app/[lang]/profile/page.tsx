@@ -84,7 +84,7 @@ export default async function ProfilePage({ params: { lang } }: { params: { lang
   const stats = [
     { label: "Projects", value: userProjects.length },
     { label: "Likes", value: userProjects.reduce((acc, p) => acc + (p.likes?.length || 0), 0) },
-    { label: "Languages", value: [...new Set(userProjects.map((p) => p.language))].length },
+    { label: "Languages", value: Array.from(new Set(userProjects.map((p) => p.language))).length },
   ];
 
   return (
