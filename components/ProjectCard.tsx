@@ -1,58 +1,72 @@
 "use client";
 import React, { useState } from "react";
-import { Heart, User2, ExternalLink, Copy, Check } from "lucide-react";
+import { Heart, ExternalLink, Copy, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
-interface ProjectCardProps {
-  project: any;
+interface Author {
+  name?: string;
 }
+
+interface Project {
+  _id?: string | { toString(): string };
+  title?: string;
+  description?: string;
+  codeSnippet?: string;
+  language?: string;
+  tags?: string[];
+  likes?: string[];
+  author?: Author;
+}
+
+interface ProjectCardProps {
+  project: Project;
+}
+
+const LANG_COLORS: Record<string, string> = {
+  TypeScript: "bg-blue-500",
+  JavaScript: "bg-yellow-400",
+  Python: "bg-green-500",
+  Rust: "bg-orange-500",
+  Go: "bg-cyan-500",
+  CSS: "bg-pink-500",
+  HTML: "bg-red-500",
+  Java: "bg-red-700",
+  "C++": "bg-purple-500",
+};
 
 export const ProjectCard = ({ project }: ProjectCardProps) => {
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState((project.likes || []).length);
+  const [likeCount, setLikeCount] = useState((project.likes ?? []).length);
   const [copied, setCopied] = useState(false);
 
-  const code = project.codeSnippet || "// No preview available";
-  const language = project.language || "JavaScript";
-  const tags = project.tags || [];
-  const author = project.author || { name: "Unknown" };
+  const code = project.codeSnippet ?? "// No preview available";
+  const language = project.language ?? "JavaScript";
+  const tags = project.tags ?? [];
+  const author = project.author ?? { name: "Unknown" };
+  const langColor = LANG_COLORS[language] ?? "bg-slate-500";
+  const lines = code.split("\n").slice(0, 8);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(code);
+    void navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setLiked(!liked);
-    setLikeCount((c: number) => liked ? c - 1 : c + 1);
+    setLiked((prev) => {
+      setLikeCount((c) => prev ? c - 1 : c + 1);
+      return !prev;
+    });
   };
-
-  const LANG_COLORS: Record<string, string> = {
-    TypeScript: "bg-blue-500",
-    JavaScript: "bg-yellow-400",
-    Python: "bg-green-500",
-    Rust: "bg-orange-500",
-    Go: "bg-cyan-500",
-    CSS: "bg-pink-500",
-    HTML: "bg-red-500",
-    Java: "bg-red-700",
-    "C++": "bg-purple-500",
-  };
-  const langColor = LANG_COLORS[language] || "bg-slate-500";
-
-  // Tokenize code minimally for colorized preview
-  const lines = code.split("\n").slice(0, 8);
 
   return (
     <Card className="group overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer bg-white dark:bg-slate-950">
 
       {/* CODE PREVIEW */}
       <div className="relative h-48 overflow-hidden bg-[#1e1e2e]">
-        {/* Window chrome */}
         <div className="flex items-center gap-1.5 px-4 py-2.5 bg-[#181825] border-b border-white/5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
           <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
@@ -60,7 +74,6 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
           <span className="ml-2 text-[10px] text-white/30 font-mono">{language.toLowerCase()}</span>
         </div>
 
-        {/* Code */}
         <div className="px-4 py-3 overflow-hidden">
           <pre className="text-[10px] font-mono leading-relaxed text-[#cdd6f4] opacity-90">
             {lines.map((line: string, i: number) => (
@@ -72,7 +85,6 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
           </pre>
         </div>
 
-        {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[1px]">
           <button
             onClick={handleCopy}
@@ -87,7 +99,6 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
           </button>
         </div>
 
-        {/* Language badge */}
         <div className={`absolute top-2 right-3 w-2 h-2 rounded-full ${langColor} shadow-lg`} />
       </div>
 
@@ -95,7 +106,7 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
       <CardContent className="p-4">
         <div className="flex justify-between items-start gap-2 mb-2">
           <h3 className="font-bold text-base line-clamp-1 text-slate-900 dark:text-slate-50">
-            {project.title || "Untitled Project"}
+            {project.title ?? "Untitled Project"}
           </h3>
           <Badge
             variant="secondary"
@@ -128,11 +139,11 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center">
             <span className="text-white text-[9px] font-bold">
-              {(author.name || "?")[0].toUpperCase()}
+              {(author.name ?? "?")[0].toUpperCase()}
             </span>
           </div>
           <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
-            {author.name}
+            {author.name ?? "Unknown"}
           </span>
         </div>
 

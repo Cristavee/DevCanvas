@@ -1,48 +1,16 @@
 import "../globals.css";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Home, Star, Plus, Search, User } from "lucide-react";
-import { headers } from "next/headers";
 
-// Server-side active link detection
-function NavLink({
-  href,
-  icon: Icon,
-  label,
-  pathname,
-}: {
-  href: string;
-  icon: React.ElementType;
-  label: string;
-  pathname: string;
-}) {
-  const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
-  return (
-    <Link href={href}>
-      <div
-        className={`flex flex-col items-center gap-0.5 transition-colors ${
-          isActive
-            ? "text-blue-600 dark:text-blue-400"
-            : "text-slate-400 dark:text-slate-500 hover:text-slate-600"
-        }`}
-      >
-        <Icon size={20} />
-        <span className="text-[10px] font-medium">{label}</span>
-      </div>
-    </Link>
-  );
-}
-
-export default async function LangLayout({
+export default function LangLayout({
   children,
   params,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   params: { lang: string };
 }) {
   const base = `/${params.lang}`;
-  // Read pathname from headers (set by middleware/Next internals)
-  const headersList = headers();
-  const pathname = headersList.get("x-pathname") || "";
 
   return (
     <html lang={params.lang}>
@@ -82,28 +50,40 @@ export default async function LangLayout({
           </header>
 
           {/* CONTENT */}
-          <main className="flex-1 overflow-y-auto px-4 py-6 pb-24">
+          <main className="flex-1 overflow-y-auto px-4 py-6 pb-28">
             {children}
           </main>
 
           {/* BOTTOM NAV (mobile) */}
-          <nav className="fixed bottom-0 left-0 right-0 border-t bg-background/90 backdrop-blur-md z-50 md:hidden">
-            <div className="relative grid grid-cols-5 text-center text-xs py-2 px-4 max-w-screen-xl mx-auto">
-              <NavLink href={base} icon={Home} label="Home" pathname={pathname} />
-              <NavLink href={`${base}/following`} icon={Star} label="Following" pathname={pathname} />
+          <nav className="fixed bottom-0 left-0 right-0 border-t bg-white/90 dark:bg-slate-950/90 backdrop-blur-md z-50 md:hidden">
+            <div className="relative grid grid-cols-5 text-center text-xs py-2 px-4 max-w-screen-xl mx-auto h-16 items-end">
+              <Link href={base} className="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600 transition-colors pb-1">
+                <Home size={20} />
+                <span className="text-[10px] font-medium">Home</span>
+              </Link>
+              <Link href={`${base}/following`} className="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600 transition-colors pb-1">
+                <Star size={20} />
+                <span className="text-[10px] font-medium">Following</span>
+              </Link>
 
               {/* FLOATING UPLOAD BUTTON */}
               <div className="flex items-center justify-center">
                 <Link
                   href={`${base}/upload`}
-                  className="absolute -top-6 w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 border-4 border-background hover:scale-105 transition-transform"
+                  className="absolute -top-5 w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 border-4 border-white dark:border-slate-950 hover:scale-105 transition-transform"
                 >
                   <Plus size={24} />
                 </Link>
               </div>
 
-              <NavLink href={`${base}/search`} icon={Search} label="Search" pathname={pathname} />
-              <NavLink href={`${base}/profile`} icon={User} label="Profile" pathname={pathname} />
+              <Link href={`${base}/search`} className="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600 transition-colors pb-1">
+                <Search size={20} />
+                <span className="text-[10px] font-medium">Search</span>
+              </Link>
+              <Link href={`${base}/profile`} className="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600 transition-colors pb-1">
+                <User size={20} />
+                <span className="text-[10px] font-medium">Profile</span>
+              </Link>
             </div>
           </nav>
         </div>

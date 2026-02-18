@@ -5,17 +5,15 @@ import Project from '@/models/Project';
 export async function GET() {
   try {
     await dbConnect();
-    
-    // Membuat data dummy
     const sample = await Project.create({
       title: "Hello DevCanvas",
-      description: "Testing koneksi database pertama",
+      description: "Testing database connection",
       codeSnippet: "console.log('Success')",
-      language: "JavaScript"
+      language: "JavaScript",
+      author: "000000000000000000000000", // placeholder ObjectId
     });
-
-    return NextResponse.json({ message: "Data berhasil disimpan!", data: sample });
-  } catch (error) {
-    return NextResponse.json({ error: "Gagal menyimpan data" }, { status: 500 });
+    return NextResponse.json({ message: "Data saved!", data: sample });
+  } catch {
+    return NextResponse.json({ error: "Failed to save data" }, { status: 500 });
   }
 }

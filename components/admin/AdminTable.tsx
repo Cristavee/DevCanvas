@@ -6,28 +6,41 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Trash2, EyeOff, Eye } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-export const AdminTable = ({ data: initialData }: { data: any[] }) => {
-  const [data, setData] = useState(initialData);
+interface ProjectRow {
+  _id: string;
+  title: string;
+  language: string;
+  visibility: string;
+  author?: { name?: string; email?: string };
+}
+
+export const AdminTable = ({ data: initialData }: { data: ProjectRow[] }) => {
+  const [data, setData] = useState<ProjectRow[]>(initialData);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this project?")) return;
-    // Optimistic update
-    setData(prev => prev.filter(p => p._id !== id));
+    setData((prev) => prev.filter((p) => p._id !== id));
     try {
       await fetch(`/api/projects/${id}`, { method: "DELETE" });
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   const handleToggleVisibility = async (id: string, currentVisibility: string) => {
     const newVisibility = currentVisibility === "Public" ? "Private" : "Public";
-    setData(prev => prev.map(p => p._id === id ? { ...p, visibility: newVisibility } : p));
+    setData((prev) =>
+      prev.map((p) => (p._id === id ? { ...p, visibility: newVisibility } : p))
+    );
     try {
       await fetch(`/api/projects/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ visibility: newVisibility }),
       });
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   if (data.length === 0) {
@@ -56,8 +69,8 @@ export const AdminTable = ({ data: initialData }: { data: any[] }) => {
               <TableCell className="font-medium max-w-[200px] truncate">{project.title}</TableCell>
               <TableCell>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium">{project.author?.name || "Unknown"}</span>
-                  <span className="text-xs text-slate-400">{project.author?.email || ""}</span>
+                  <span className="text-sm font-medium">{project.author?.name ?? "Unknown"}</span>
+                  <span className="text-xs text-slate-400">{project.author?.email ?? ""}</span>
                 </div>
               </TableCell>
               <TableCell>
@@ -67,9 +80,11 @@ export const AdminTable = ({ data: initialData }: { data: any[] }) => {
               </TableCell>
               <TableCell>
                 <Badge
-                  className={project.visibility === "Public"
-                    ? "bg-emerald-500/10 text-emerald-600 border-0 hover:bg-emerald-500/20"
-                    : "bg-slate-500/10 text-slate-600 border-0 hover:bg-slate-500/20"}
+                  className={
+                    project.visibility === "Public"
+                      ? "bg-emerald-500/10 text-emerald-600 border-0"
+                      : "bg-slate-500/10 text-slate-600 border-0"
+                  }
                 >
                   {project.visibility}
                 </Badge>

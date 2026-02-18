@@ -1,7 +1,7 @@
 "use client";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Search as SearchIcon } from "lucide-react";
-import { useTransition, useState } from "react";
+import { useTransition, useState, type FormEvent } from "react";
 
 export function SearchBar({ placeholder }: { placeholder: string }) {
   const router = useRouter();
@@ -10,7 +10,7 @@ export function SearchBar({ placeholder }: { placeholder: string }) {
   const [isPending, startTransition] = useTransition();
   const [query, setQuery] = useState(searchParams.get("q") || "");
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const params = new URLSearchParams(searchParams.toString());
     if (query) {

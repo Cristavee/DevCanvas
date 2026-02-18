@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export default function SignInPage({ params: { lang } }: { params: { lang: string } }) {
+export default function SignInPage() {
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,6 @@ export default function SignInPage({ params: { lang } }: { params: { lang: strin
         router.push("/" + lang);
       }
     } else {
-      // Register
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,7 +52,6 @@ export default function SignInPage({ params: { lang } }: { params: { lang: strin
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-blue-500/30">
             <span className="text-white font-black text-xl">DC</span>
@@ -65,23 +65,23 @@ export default function SignInPage({ params: { lang } }: { params: { lang: strin
         </div>
 
         <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6">
-          {/* Tab switcher */}
           <div className="flex bg-slate-100 dark:bg-slate-900 rounded-xl p-1 mb-6">
             {(["signin", "signup"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => { setTab(t); setError(""); }}
-                className={"flex-1 py-2 text-sm font-semibold rounded-lg transition-all " +
+                className={
+                  "flex-1 py-2 text-sm font-semibold rounded-lg transition-all " +
                   (tab === t
                     ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
-                    : "text-slate-500 hover:text-slate-700")}
+                    : "text-slate-500 hover:text-slate-700")
+                }
               >
                 {t === "signin" ? "Sign In" : "Sign Up"}
               </button>
             ))}
           </div>
 
-          {/* GitHub OAuth */}
           <Button
             type="button"
             variant="outline"

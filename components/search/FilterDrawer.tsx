@@ -14,7 +14,7 @@ export const FilterDrawer = ({ dict }: { dict: any }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [sort, setSort] = useState(searchParams.get("sort") || "latest");
-  const [open, setOpen] = useState(false);
+  const currentLang = searchParams.get("langTag") || "";
 
   const applyFilter = (langTag?: string, newSort?: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -26,10 +26,8 @@ export const FilterDrawer = ({ dict }: { dict: any }) => {
     router.push(pathname + "?" + params.toString());
   };
 
-  const currentLang = searchParams.get("langTag") || "";
-
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet>
       <SheetTrigger asChild>
         <Button variant="outline" className="h-11 gap-2 rounded-xl border-slate-200 dark:border-slate-700 whitespace-nowrap">
           <SlidersHorizontal size={16} />
@@ -41,7 +39,6 @@ export const FilterDrawer = ({ dict }: { dict: any }) => {
           <SheetTitle className="text-xl font-bold">{dict.search.filters}</SheetTitle>
         </SheetHeader>
         <div className="py-6 space-y-8">
-          {/* Language */}
           <div className="space-y-3">
             <h4 className="font-semibold text-xs uppercase tracking-wider text-slate-400">
               {dict.search.language}
@@ -49,8 +46,12 @@ export const FilterDrawer = ({ dict }: { dict: any }) => {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => applyFilter("")}
-                className={"px-3 py-1.5 rounded-full text-xs font-medium border transition-all " +
-                  (!currentLang ? "bg-blue-600 text-white border-blue-600" : "bg-white dark:bg-slate-900 text-slate-600 border-slate-200 dark:border-slate-700 hover:border-blue-400")}
+                className={
+                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-all " +
+                  (!currentLang
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white dark:bg-slate-900 text-slate-600 border-slate-200 dark:border-slate-700 hover:border-blue-400")
+                }
               >
                 All
               </button>
@@ -58,8 +59,12 @@ export const FilterDrawer = ({ dict }: { dict: any }) => {
                 <button
                   key={lang}
                   onClick={() => applyFilter(lang)}
-                  className={"px-3 py-1.5 rounded-full text-xs font-medium border transition-all " +
-                    (currentLang === lang ? "bg-blue-600 text-white border-blue-600" : "bg-white dark:bg-slate-900 text-slate-600 border-slate-200 dark:border-slate-700 hover:border-blue-400")}
+                  className={
+                    "px-3 py-1.5 rounded-full text-xs font-medium border transition-all " +
+                    (currentLang === lang
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white dark:bg-slate-900 text-slate-600 border-slate-200 dark:border-slate-700 hover:border-blue-400")
+                  }
                 >
                   {lang}
                 </button>
@@ -67,12 +72,17 @@ export const FilterDrawer = ({ dict }: { dict: any }) => {
             </div>
           </div>
 
-          {/* Sort */}
           <div className="space-y-3">
             <h4 className="font-semibold text-xs uppercase tracking-wider text-slate-400">
               {dict.search.popularity}
             </h4>
-            <RadioGroup value={sort} onValueChange={(v) => { setSort(v); applyFilter(undefined, v); }}>
+            <RadioGroup
+              value={sort}
+              onValueChange={(v: string) => {
+                setSort(v);
+                applyFilter(undefined, v);
+              }}
+            >
               <div className="flex items-center space-x-2 py-1">
                 <RadioGroupItem value="latest" id="latest" />
                 <Label htmlFor="latest" className="cursor-pointer">{dict.search.latest}</Label>
@@ -84,10 +94,7 @@ export const FilterDrawer = ({ dict }: { dict: any }) => {
             </RadioGroup>
           </div>
 
-          <Button
-            className="w-full rounded-xl bg-blue-600 hover:bg-blue-700"
-            onClick={() => setOpen(false)}
-          >
+          <Button className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white">
             Apply Filters
           </Button>
         </div>

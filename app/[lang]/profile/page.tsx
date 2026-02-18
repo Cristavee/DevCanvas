@@ -2,9 +2,8 @@ import { getDictionary } from "@/lib/get-dictionary";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Settings, Github, Globe, Twitter, Link2 } from "lucide-react";
+import { Settings, Github, Link2 } from "lucide-react";
 
-// Demo user for when no session/DB
 const DEMO_USER = {
   name: "Alex Rivera",
   email: "alex@devcanvas.dev",
@@ -52,10 +51,12 @@ const DEMO_PROJECTS = [
   },
 ];
 
-export default async function ProfilePage({ params: { lang } }: { params: { lang: string } }) {
-  const dict = await getDictionary(lang);
+type DemoUser = typeof DEMO_USER;
 
-  let user = DEMO_USER;
+export default async function ProfilePage({ params: { lang } }: { params: { lang: string } }) {
+  await getDictionary(lang);
+
+  let user: DemoUser = DEMO_USER;
   let userProjects: any[] = DEMO_PROJECTS;
 
   try {
@@ -68,7 +69,7 @@ export default async function ProfilePage({ params: { lang } }: { params: { lang
     const session = await getServerSession(authOptions);
     if (session?.user?.email) {
       await dbConnect();
-      const dbUser = await User.findOne({ email: session.user.email }).lean() as any;
+      const dbUser = await User.findOne({ email: session.user.email }).lean() as (typeof DEMO_USER & { _id: unknown }) | null;
       if (dbUser) {
         user = dbUser;
         const dbProjects = await Project.find({ author: dbUser._id })
@@ -81,22 +82,21 @@ export default async function ProfilePage({ params: { lang } }: { params: { lang
     // fallback to demo data
   }
 
+  const totalLikes = userProjects.reduce((acc: number, p: any) => acc + (p.likes?.length || 0), 0);
+  const uniqueLangs = Array.from(new Set(userProjects.map((p: any) => p.language))).length;
+
   const stats = [
     { label: "Projects", value: userProjects.length },
-    { label: "Likes", value: userProjects.reduce((acc, p) => acc + (p.likes?.length || 0), 0) },
-    { label: "Languages", value: Array.from(new Set(userProjects.map((p) => p.language))).length },
+    { label: "Likes", value: totalLikes },
+    { label: "Languages", value: uniqueLangs },
   ];
 
   return (
     <div className="max-w-4xl mx-auto pb-24">
-      {/* Profile Header */}
       <div className="relative">
-        {/* Cover */}
-        <div className="h-32 rounded-2xl bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 mb-0" />
-
-        {/* Profile info card */}
-        <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm px-6 pt-16 pb-6 -mt-6 mx-2">
-          <div className="absolute -mt-28 ml-0">
+        <div className="h-32 rounded-2xl bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600" />
+        <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm px-6 pt-16 pb-6 -mt-6 mx-2 relative">
+          <div className="absolute left-6 -top-10">
             <Avatar className="w-20 h-20 border-4 border-white dark:border-slate-950 shadow-xl">
               <AvatarImage src={user.avatar || ""} />
               <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-blue-400 to-violet-500 text-white">
@@ -110,24 +110,22 @@ export default async function ProfilePage({ params: { lang } }: { params: { lang
               <h1 className="text-2xl font-black text-slate-900 dark:text-white">{user.name}</h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">{user.email}</p>
               <p className="text-slate-600 dark:text-slate-300 mt-2 max-w-md text-sm">
-                {(user as any).bio || "No bio yet. Click Edit Profile to add one."}
+                {user.bio || "No bio yet. Click Edit Profile to add one."}
               </p>
-
               <div className="flex flex-wrap gap-2 mt-3">
-                {(user as any).githubId && (
+                {user.githubId && (
                   <a
-                    href={`https://github.com/${(user as any).githubId}`}
+                    href={`https://github.com/${user.githubId}`}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
                   >
                     <Github size={13} />
-                    {(user as any).githubId}
+                    {user.githubId}
                   </a>
                 )}
               </div>
             </div>
-
             <div className="flex gap-2 flex-shrink-0">
               <Button variant="outline" size="sm" className="rounded-xl gap-2 text-xs">
                 <Settings size={13} /> Edit Profile
@@ -138,7 +136,6 @@ export default async function ProfilePage({ params: { lang } }: { params: { lang
             </div>
           </div>
 
-          {/* Stats */}
           <div className="flex gap-6 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             {stats.map(({ label, value }) => (
               <div key={label}>
@@ -150,14 +147,10 @@ export default async function ProfilePage({ params: { lang } }: { params: { lang
         </div>
       </div>
 
-      {/* Projects */}
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">My Canvas</h2>
-          <a
-            href={`/${lang}/upload`}
-            className="text-sm text-blue-600 hover:underline font-medium"
-          >
+          <a href={`/${lang}/upload`} className="text-sm text-blue-600 hover:underline font-medium">
             + Upload New
           </a>
         </div>
@@ -176,9 +169,9 @@ export default async function ProfilePage({ params: { lang } }: { params: { lang
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {userProjects.map((project) => (
+            {userProjects.map((project: any) => (
               <ProjectCard
-                key={project._id?.toString?.() || project._id}
+                key={String(project._id)}
                 project={project}
               />
             ))}
