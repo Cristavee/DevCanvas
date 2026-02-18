@@ -1,114 +1,208 @@
+"use client";
+import { useState } from "react";
+import { Hash, Users, TrendingUp, Plus, Search, MessageSquare, Star, ArrowRight, Lock, Globe, Zap } from "lucide-react";
 import Link from "next/link";
-import { Users, TrendingUp, Hash, ArrowRight, Plus, Globe, Flame } from "lucide-react";
 
 const COMMUNITIES = [
-  { slug: 'javascript', name: 'JavaScript', icon: '⚡', color: 'from-yellow-400 to-orange-500', members: 12400, posts: 3200, description: 'Everything JavaScript — frameworks, patterns, tips and the latest ecosystem news.', tags: ['react', 'node', 'typescript'], hot: true },
-  { slug: 'python', name: 'Python', icon: '🐍', color: 'from-blue-400 to-cyan-500', members: 9800, posts: 2100, description: 'Python community for data science, web dev, automation and everything in between.', tags: ['django', 'fastapi', 'ml'], hot: true },
-  { slug: 'rust', name: 'Rustaceans', icon: '🦀', color: 'from-orange-500 to-red-500', members: 4200, posts: 980, description: 'Memory safety without garbage collection. Systems programming for the future.', tags: ['systems', 'wasm', 'async'] },
-  { slug: 'typescript', name: 'TypeScript', icon: '🔷', color: 'from-blue-600 to-indigo-600', members: 8100, posts: 1900, description: 'Typed JavaScript at any scale. Share patterns, decorators and generics wizardry.', tags: ['types', 'generics', 'tooling'] },
-  { slug: 'go', name: 'Gophers', icon: '🔵', color: 'from-cyan-400 to-teal-500', members: 3500, posts: 750, description: 'Simple, fast, concurrent. Go language for backend systems and CLI tools.', tags: ['goroutines', 'channels', 'api'] },
-  { slug: 'css', name: 'CSS Art & Design', icon: '🎨', color: 'from-pink-500 to-rose-500', members: 6200, posts: 1500, description: 'Beautiful CSS animations, layouts and design system discussions.', tags: ['animations', 'grid', 'variables'], hot: true },
-  { slug: 'devops', name: 'DevOps & Cloud', icon: '☁️', color: 'from-slate-400 to-slate-600', members: 5100, posts: 1200, description: 'Docker, Kubernetes, CI/CD and cloud architecture patterns.', tags: ['docker', 'k8s', 'terraform'] },
-  { slug: 'web3', name: 'Web3 & Blockchain', icon: '⛓️', color: 'from-purple-500 to-indigo-500', members: 2800, posts: 620, description: 'Smart contracts, DeFi protocols and decentralized application development.', tags: ['solidity', 'ethereum', 'defi'] },
+  {
+    id: 'javascript',
+    name: 'JavaScript',
+    icon: '⚡',
+    accent: '#F7DF1E',
+    members: 12400,
+    description: 'Everything JavaScript — ES2024, frameworks, patterns, and the eternal debates.',
+    channels: ['#general', '#help', '#showcase', '#jobs', '#react', '#node'],
+    tags: ['web', 'frontend', 'fullstack'],
+    posts: 284,
+    online: 192,
+    joined: true,
+  },
+  {
+    id: 'python',
+    name: 'Python',
+    icon: '🐍',
+    accent: '#3776AB',
+    members: 9800,
+    description: 'Python for web, data science, AI/ML, automation, and everything in between.',
+    channels: ['#general', '#data-science', '#django', '#fastapi', '#ai-ml'],
+    tags: ['data', 'ai', 'backend'],
+    posts: 197,
+    online: 134,
+    joined: false,
+  },
+  {
+    id: 'rust',
+    name: 'Rust',
+    icon: '🦀',
+    accent: '#CE4A07',
+    members: 4200,
+    description: 'Systems programming for the modern era. Safe, fast, and fearless concurrency.',
+    channels: ['#general', '#beginners', '#async', '#embedded', '#wasm'],
+    tags: ['systems', 'performance', 'safety'],
+    posts: 118,
+    online: 76,
+    joined: true,
+  },
+  {
+    id: 'typescript',
+    name: 'TypeScript',
+    icon: '🔷',
+    accent: '#3178C6',
+    members: 8100,
+    description: 'Type-safe JavaScript at scale. Types, generics, decorators, and tooling.',
+    channels: ['#general', '#types', '#nextjs', '#tooling', '#patterns'],
+    tags: ['types', 'frontend', 'fullstack'],
+    posts: 203,
+    online: 148,
+    joined: false,
+  },
+  {
+    id: 'go',
+    name: 'Go',
+    icon: '🔵',
+    accent: '#00ACD7',
+    members: 5600,
+    description: "Google's language for cloud-native, microservices, and high-performance systems.",
+    channels: ['#general', '#cloud', '#goroutines', '#gin', '#grpc'],
+    tags: ['cloud', 'backend', 'devops'],
+    posts: 142,
+    online: 89,
+    joined: false,
+  },
+  {
+    id: 'devops',
+    name: 'DevOps & Cloud',
+    icon: '☁️',
+    accent: '#FF9900',
+    members: 3200,
+    description: 'Kubernetes, Docker, CI/CD, infrastructure as code, and cloud platforms.',
+    channels: ['#general', '#kubernetes', '#terraform', '#github-actions', '#aws'],
+    tags: ['cloud', 'infra', 'k8s'],
+    posts: 94,
+    online: 52,
+    joined: false,
+  },
 ];
 
-function fmt(n: number) {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return String(n);
-}
-
 export default function CommunityPage() {
-  return (
-    <div className="space-y-8">
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
 
-      {/* Header */}
-      <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  const filtered = COMMUNITIES.filter(c => {
+    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
+    if (filter === 'joined') return matchSearch && c.joined;
+    return matchSearch;
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Communities</h1>
-          <p className="text-muted-foreground text-sm mt-1">Find your people. Join a community.</p>
+          <h1 className="text-2xl font-bold text-foreground">Communities</h1>
+          <p className="text-muted-foreground text-sm mt-0.5 font-mono">Join sub-communities built around languages and technologies</p>
         </div>
-        <button className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-4 py-2.5 rounded-xl hover:opacity-90 transition-opacity text-sm">
-          <Plus size={16} />
+        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold font-mono transition-all hover:opacity-90 text-black w-fit"
+          style={{ background: 'var(--neon-green)' }}>
+          <Plus size={15} />
           Create Community
         </button>
-      </section>
+      </div>
 
-      {/* Featured / Hot */}
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <Flame size={16} className="text-orange-500" />
-          <h2 className="font-semibold text-base text-foreground">Hot Communities</h2>
+      {/* Search + filter */}
+      <div className="flex gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-48">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search communities..."
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[var(--neon-green)]/50 transition-colors font-mono"
+          />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {COMMUNITIES.filter(c => c.hot).slice(0, 3).map(c => (
-            <Link
-              key={c.slug}
-              href={`./community/${c.slug}`}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/20 hover:shadow-card-hover transition-all p-5"
-            >
-              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${c.color} opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none`} />
-              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${c.color} flex items-center justify-center text-xl mb-4 shadow-sm`}>
-                {c.icon}
+        <div className="flex gap-1 p-1 rounded-xl border border-border bg-card">
+          {['all', 'joined', 'trending'].map(f => (
+            <button key={f} onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono capitalize transition-all ${filter === f ? 'text-[color:var(--neon-green)] bg-[var(--neon-green-dim)]' : 'text-muted-foreground hover:text-foreground'}`}>
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Community grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {filtered.map((c) => (
+          <div key={c.id}
+            className="group rounded-xl border border-border bg-card overflow-hidden hover:border-[var(--neon-green)]/30 transition-all hover:shadow-[0_0_0_1px_var(--neon-green-dim)]">
+            {/* Header gradient bar */}
+            <div className="h-1.5" style={{ background: c.accent }} />
+            
+            <div className="p-5">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl border border-border"
+                    style={{ background: c.accent + '15' }}>
+                    {c.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground">{c.name}</h3>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <div className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground">
+                        <Users size={10} />
+                        {c.members.toLocaleString()}
+                      </div>
+                      <span className="text-muted-foreground text-[10px]">·</span>
+                      <div className="flex items-center gap-1 text-[10px] font-mono" style={{ color: 'var(--neon-green)' }}>
+                        <span className="w-1.5 h-1.5 rounded-full animate-pulse-neon inline-block" style={{ background: 'var(--neon-green)' }} />
+                        {c.online} online
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all flex-shrink-0 ${c.joined ? 'border border-border text-muted-foreground hover:bg-muted' : 'text-black hover:opacity-90'}`}
+                  style={!c.joined ? { background: 'var(--neon-green)' } : {}}>
+                  {c.joined ? 'Joined' : 'Join'}
+                </button>
               </div>
-              <div className="font-bold text-foreground mb-1">{c.name}</div>
-              <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">{c.description}</p>
+
+              <p className="text-xs text-muted-foreground mb-3 leading-relaxed line-clamp-2">{c.description}</p>
+
+              {/* Channels */}
+              <div className="flex gap-1 flex-wrap mb-3">
+                {c.channels.slice(0, 4).map(ch => (
+                  <span key={ch} className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-border text-muted-foreground hover:text-foreground hover:border-[var(--electric-blue)]/40 transition-colors cursor-pointer">
+                    {ch}
+                  </span>
+                ))}
+                {c.channels.length > 4 && (
+                  <span className="text-[10px] font-mono text-muted-foreground px-1.5 py-0.5">+{c.channels.length - 4} more</span>
+                )}
+              </div>
+
+              {/* Tags & stats */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Users size={12} />
-                  <span>{fmt(c.members)} members</span>
+                <div className="flex gap-1">
+                  {c.tags.map(t => (
+                    <span key={t} className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{t}</span>
+                  ))}
                 </div>
-                <ArrowRight size={14} className="text-primary opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0.5" />
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* All Communities */}
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <Globe size={16} className="text-muted-foreground" />
-          <h2 className="font-semibold text-base text-foreground">All Communities</h2>
-        </div>
-        <div className="space-y-2">
-          {COMMUNITIES.map((c, i) => (
-            <Link
-              key={c.slug}
-              href={`./community/${c.slug}`}
-              className="group flex items-center gap-4 p-4 rounded-2xl border border-border bg-card hover:border-primary/20 hover:bg-muted/30 transition-all"
-            >
-              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${c.color} flex items-center justify-center text-lg shrink-0 shadow-sm`}>
-                {c.icon}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-sm text-foreground">{c.name}</span>
-                  {c.hot && <span className="text-[10px] bg-orange-500/10 text-orange-600 dark:text-orange-400 px-2 py-0.5 rounded-full font-semibold">HOT</span>}
+                <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground">
+                  <MessageSquare size={10} />
+                  {c.posts}/day
                 </div>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">{c.description}</p>
               </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-              <div className="hidden sm:flex flex-col items-end shrink-0 gap-0.5">
-                <span className="text-sm font-semibold text-foreground">{fmt(c.members)}</span>
-                <span className="text-xs text-muted-foreground">members</span>
-              </div>
-
-              <div className="hidden md:flex flex-col items-end shrink-0 gap-0.5">
-                <span className="text-sm font-semibold text-foreground">{fmt(c.posts)}</span>
-                <span className="text-xs text-muted-foreground">posts</span>
-              </div>
-
-              <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 border border-primary/40 text-primary rounded-lg text-xs font-medium hover:bg-primary hover:text-primary-foreground transition-all shrink-0">
-                Join
-              </button>
-
-              <ArrowRight size={14} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0.5 sm:hidden" />
-            </Link>
-          ))}
+      {filtered.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-3xl mb-3">🔍</div>
+          <p className="text-muted-foreground font-mono text-sm">No communities found for "{search}"</p>
         </div>
-      </section>
-
+      )}
     </div>
   );
 }

@@ -1,23 +1,33 @@
 import "../globals.css";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Home, Compass, Plus, MessageSquare, Users, Bell, Settings, Code2, TrendingUp, Bookmark, User, ChevronRight, Hash } from "lucide-react";
+import {
+  Home, Compass, Plus, MessageSquare, Users, Bell, Settings,
+  Code2, TrendingUp, Bookmark, User, Hash, Zap, Trophy,
+  BarChart2, Terminal, Search, Shield
+} from "lucide-react";
 
-const NAV_ITEMS = [
+const NAV_MAIN = [
   { icon: Home, label: "Home", href: "" },
   { icon: Compass, label: "Explore", href: "/search" },
   { icon: TrendingUp, label: "Trending", href: "/trending" },
+  { icon: MessageSquare, label: "Chat", href: "/chat", badge: 3 },
   { icon: Users, label: "Community", href: "/community" },
-  { icon: MessageSquare, label: "Messages", href: "/chat", badge: 3 },
   { icon: Bookmark, label: "Saved", href: "/saved" },
 ];
 
+const NAV_TOOLS = [
+  { icon: Terminal, label: "Code Runner", href: "/runner" },
+  { icon: BarChart2, label: "Analytics", href: "/analytics" },
+  { icon: Trophy, label: "Leaderboard", href: "/leaderboard" },
+];
+
 const COMMUNITIES = [
-  { name: "JavaScript", icon: "⚡", color: "from-yellow-400 to-orange-500" },
-  { name: "Python", icon: "🐍", color: "from-blue-500 to-cyan-500" },
-  { name: "Rust", icon: "🦀", color: "from-orange-500 to-red-600" },
-  { name: "TypeScript", icon: "🔷", color: "from-blue-600 to-indigo-600" },
-  { name: "Go", icon: "🔵", color: "from-cyan-500 to-teal-600" },
+  { name: "JavaScript", slug: "javascript", icon: "⚡", accent: "#F7DF1E" },
+  { name: "Python", slug: "python", icon: "🐍", accent: "#3776AB" },
+  { name: "Rust", slug: "rust", icon: "🦀", accent: "#CE4A07" },
+  { name: "TypeScript", slug: "typescript", icon: "🔷", accent: "#3178C6" },
+  { name: "Go", slug: "go", icon: "🔵", accent: "#00ACD7" },
 ];
 
 export default function LangLayout({
@@ -30,45 +40,61 @@ export default function LangLayout({
   const base = `/${params.lang}`;
 
   return (
-    <html lang={params.lang} suppressHydrationWarning>
+    <html lang={params.lang} className="dark" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500;600&display=swap"
           rel="stylesheet"
         />
+        <meta name="theme-color" content="#0a0f1e" />
       </head>
       <body className="bg-background text-foreground antialiased">
         <div className="min-h-screen flex">
 
-          {/* LEFT SIDEBAR desktop */}
-          <aside className="hidden lg:flex flex-col w-64 xl:w-72 border-r border-border bg-sidebar shrink-0 fixed left-0 top-0 h-screen z-40">
+          {/* ═══ LEFT SIDEBAR ═══ */}
+          <aside className="hidden lg:flex flex-col w-60 xl:w-64 border-r border-sidebar-border bg-[hsl(var(--sidebar-bg))] shrink-0 fixed left-0 top-0 h-screen z-40">
+            
             {/* Logo */}
-            <div className="px-5 py-5 border-b border-sidebar-border">
+            <div className="px-4 py-4 border-b border-sidebar-border">
               <Link href={base} className="flex items-center gap-3 group">
-                <div className="w-9 h-9 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
-                  <Code2 className="w-5 h-5 text-white" />
+                <div className="relative w-8 h-8 flex-shrink-0">
+                  <div className="absolute inset-0 rounded-lg bg-[var(--neon-green)] opacity-20 blur-md group-hover:opacity-40 transition-opacity" />
+                  <div className="relative w-8 h-8 rounded-lg bg-[var(--sidebar-bg)] border border-[var(--neon-green)]/40 flex items-center justify-center">
+                    <Code2 className="w-4 h-4" style={{ color: 'var(--neon-green)' }} />
+                  </div>
                 </div>
                 <div>
-                  <span className="font-bold text-lg tracking-tight text-foreground">DevCanvas</span>
-                  <div className="text-xs text-muted-foreground font-medium leading-none mt-0.5">Code Community</div>
+                  <span className="font-bold text-base tracking-tight text-foreground">DevCanvas</span>
+                  <div className="text-[10px] font-mono" style={{ color: 'var(--neon-green)' }}>v3.0.0</div>
                 </div>
               </Link>
             </div>
 
+            {/* ⌘K hint */}
+            <div className="px-4 pt-3">
+              <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/50 text-muted-foreground text-xs hover:border-[var(--neon-green)]/30 transition-colors group">
+                <Search size={12} />
+                <span className="flex-1 text-left">Search or jump...</span>
+                <kbd className="text-[10px] font-mono bg-background px-1.5 py-0.5 rounded border border-border">⌘K</kbd>
+              </button>
+            </div>
+
             {/* Main Nav */}
-            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-              {NAV_ITEMS.map(({ icon: Icon, label, href, badge }: any) => (
+            <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest px-2 py-1.5">Navigation</div>
+              {NAV_MAIN.map(({ icon: Icon, label, href, badge }: any) => (
                 <Link
                   key={label}
                   href={`${base}${href}`}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all text-sm font-medium group"
+                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-[var(--neon-green-dim)] transition-all text-sm font-medium group relative"
                 >
-                  <Icon className="shrink-0" size={18} />
-                  <span className="flex-1">{label}</span>
+                  <Icon size={15} className="flex-shrink-0 group-hover:text-[color:var(--neon-green)] transition-colors" />
+                  <span className="flex-1 text-sm">{label}</span>
                   {badge && (
-                    <span className="text-xs bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 font-semibold leading-none">
+                    <span className="text-[10px] font-bold font-mono px-1.5 py-0.5 rounded-full leading-none"
+                      style={{ background: 'var(--neon-green)', color: 'hsl(var(--background))' }}>
                       {badge}
                     </span>
                   )}
@@ -77,109 +103,122 @@ export default function LangLayout({
 
               <Link
                 href={`${base}/upload`}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity mt-3"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-semibold mt-2 transition-all hover:opacity-90 font-mono"
+                style={{ background: 'var(--neon-green)', color: 'hsl(var(--background))' }}
               >
-                <Plus size={18} />
-                <span>Share Code</span>
+                <Plus size={15} />
+                <span>New Snippet</span>
+                <span className="ml-auto text-[10px] opacity-70">⌘N</span>
               </Link>
+
+              {/* Tools */}
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest px-2 py-1.5 pt-4">Dev Tools</div>
+              {NAV_TOOLS.map(({ icon: Icon, label, href }: any) => (
+                <Link
+                  key={label}
+                  href={`${base}${href}`}
+                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-[var(--electric-blue-dim)] transition-all text-sm font-medium group"
+                >
+                  <Icon size={15} className="flex-shrink-0 group-hover:text-[color:var(--electric-blue)] transition-colors" />
+                  <span className="text-sm">{label}</span>
+                </Link>
+              ))}
 
               {/* Communities */}
-              <div className="pt-5">
-                <div className="flex items-center justify-between px-3 mb-2">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Communities</span>
-                  <Link href={`${base}/community`} className="text-xs text-primary hover:underline">All</Link>
-                </div>
-                {COMMUNITIES.map((c) => (
-                  <Link
-                    key={c.name}
-                    href={`${base}/community/${c.name.toLowerCase()}`}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all text-sm group"
-                  >
-                    <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${c.color} flex items-center justify-center text-xs`}>
-                      {c.icon}
-                    </div>
-                    <span className="font-medium">{c.name}</span>
-                  </Link>
-                ))}
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest px-2 py-1.5 pt-4 flex items-center justify-between">
+                <span>Communities</span>
+                <Link href={`${base}/community`} className="text-[10px] font-mono hover:text-[color:var(--neon-green)] transition-colors">all →</Link>
               </div>
+              {COMMUNITIES.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={`${base}/community/${c.slug}`}
+                  className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all text-sm group"
+                >
+                  <div className="w-5 h-5 rounded flex items-center justify-center text-xs">{c.icon}</div>
+                  <span className="flex-1 text-sm">{c.name}</span>
+                  <Hash size={11} className="opacity-0 group-hover:opacity-50 transition-opacity" />
+                </Link>
+              ))}
             </nav>
 
-            {/* User area */}
-            <div className="px-3 py-4 border-t border-sidebar-border">
-              <Link
-                href={`${base}/profile`}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all group"
-              >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-bold shrink-0">
-                  U
+            {/* Bottom user area */}
+            <div className="px-3 py-3 border-t border-sidebar-border space-y-0.5">
+              <Link href={`${base}/admin`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all text-sm">
+                <Shield size={14} />
+                <span>Admin Panel</span>
+              </Link>
+              <Link href={`${base}/settings`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all text-sm">
+                <Settings size={14} />
+                <span>Settings</span>
+              </Link>
+              <Link href={`${base}/profile`} className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg hover:bg-muted/50 transition-all group mt-1">
+                <div className="relative w-7 h-7 rounded-full flex-shrink-0 overflow-hidden">
+                  <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(135deg, var(--neon-green), var(--electric-blue))' }} />
+                  <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">U</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-foreground truncate">Your Profile</div>
-                  <div className="text-xs text-muted-foreground truncate">View & edit</div>
+                  <div className="text-xs font-semibold text-foreground truncate">Your Profile</div>
+                  <div className="text-[10px] text-muted-foreground font-mono">2,840 XP · Rank #12</div>
                 </div>
-                <ChevronRight size={14} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
-              <Link
-                href={`${base}/settings`}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all text-sm mt-0.5"
-              >
-                <Settings size={16} />
-                <span>Settings</span>
+                <Zap size={12} style={{ color: 'var(--neon-green)' }} />
               </Link>
             </div>
           </aside>
 
-          {/* MAIN AREA */}
-          <div className="flex-1 lg:pl-64 xl:pl-72 min-h-screen flex flex-col">
+          {/* ═══ MAIN AREA ═══ */}
+          <div className="flex-1 lg:pl-60 xl:pl-64 min-h-screen flex flex-col">
+            
             {/* Mobile header */}
-            <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-30">
+            <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border glass sticky top-0 z-30">
               <Link href={base} className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-                  <Code2 className="w-4 h-4 text-white" />
+                <div className="w-7 h-7 rounded-lg border flex items-center justify-center" style={{ borderColor: 'var(--neon-green)', background: 'var(--neon-green-dim)' }}>
+                  <Code2 className="w-4 h-4" style={{ color: 'var(--neon-green)' }} />
                 </div>
                 <span className="font-bold tracking-tight text-foreground">DevCanvas</span>
+                <span className="text-[10px] font-mono" style={{ color: 'var(--neon-green)' }}>v3</span>
               </Link>
-              <div className="flex items-center gap-2">
-                <Link href={`${base}/chat`} className="relative p-2 rounded-lg hover:bg-muted transition-colors">
-                  <MessageSquare size={18} className="text-muted-foreground" />
-                  <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-primary rounded-full text-xs text-white font-bold flex items-center justify-center leading-none">3</span>
-                </Link>
-                <Link href={`${base}/profile`} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-bold">
-                  U
+              <div className="flex items-center gap-1.5">
+                <button className="relative p-2 rounded-lg hover:bg-muted transition-colors">
+                  <Bell size={17} className="text-muted-foreground" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: 'var(--neon-green)' }} />
+                </button>
+                <Link href={`${base}/profile`} className="relative w-7 h-7 rounded-full overflow-hidden">
+                  <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(135deg, var(--neon-green), var(--electric-blue))' }} />
+                  <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">U</span>
                 </Link>
               </div>
             </header>
 
-            <main className="flex-1 max-w-5xl mx-auto w-full px-4 lg:px-8 py-6 pb-24 lg:pb-8">
+            <main className="flex-1 max-w-6xl mx-auto w-full px-4 lg:px-8 py-6 pb-24 lg:pb-8">
               {children}
             </main>
           </div>
 
-          {/* BOTTOM NAV mobile */}
-          <nav className="fixed bottom-0 left-0 right-0 border-t border-border bg-background/90 backdrop-blur-md z-50 lg:hidden safe-area-inset-bottom">
+          {/* ═══ MOBILE BOTTOM NAV ═══ */}
+          <nav className="fixed bottom-0 left-0 right-0 border-t border-border glass z-50 lg:hidden">
             <div className="grid grid-cols-5 h-16">
               {[
                 { icon: Home, label: "Home", href: "" },
                 { icon: Compass, label: "Explore", href: "/search" },
-                { icon: Plus, label: "Post", href: "/upload", special: true },
+                { icon: Plus, label: "New", href: "/upload", special: true },
                 { icon: MessageSquare, label: "Chat", href: "/chat" },
                 { icon: User, label: "Me", href: "/profile" },
               ].map(({ icon: Icon, label, href, special }: any) => (
                 <Link
                   key={label}
                   href={`${base}${href}`}
-                  className={`flex flex-col items-center justify-center gap-0.5 transition-all ${
-                    special ? "relative" : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`flex flex-col items-center justify-center gap-0.5 transition-all ${special ? "relative" : "text-muted-foreground"}`}
                 >
                   {special ? (
-                    <div className="absolute -top-5 w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-md text-white">
-                      <Plus size={22} />
+                    <div className="absolute -top-5 w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg text-black font-bold"
+                      style={{ background: 'linear-gradient(135deg, var(--neon-green), var(--electric-blue))' }}>
+                      <Plus size={20} />
                     </div>
                   ) : (
                     <>
-                      <Icon size={18} />
-                      <span className="text-xs font-medium">{label}</span>
+                      <Icon size={17} />
+                      <span className="text-[10px] font-medium">{label}</span>
                     </>
                   )}
                 </Link>

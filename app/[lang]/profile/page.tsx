@@ -1,118 +1,221 @@
-import { Code2, Heart, Star, Users, MessageSquare, Settings, GitBranch, Calendar, MapPin, Link as LinkIcon, Edit3 } from "lucide-react";
-import Link from "next/link";
+"use client";
+import { useState } from "react";
+import { Code2, Star, Heart, MessageSquare, Users, GitBranch, Zap, Trophy, Calendar, MapPin, Link2, Twitter, Github, Edit3, TrendingUp, Clock } from "lucide-react";
 
-const DEMO_STATS = [
-  { label: 'Snippets', value: '24' },
-  { label: 'Likes received', value: '486' },
-  { label: 'Followers', value: '128' },
-  { label: 'Following', value: '64' },
+const TABS = ['Overview', 'Snippets', 'Stars', 'Activity'];
+
+const CONTRIBUTION_DATA = [
+  [0,1,3,0,2,4,1],[2,0,1,3,2,1,0],[1,4,2,3,1,0,2],[3,1,0,2,4,3,1],
+  [0,2,3,1,0,2,4],[4,1,2,0,3,1,2],[1,3,0,4,2,1,3],[2,0,4,1,3,2,0],
+  [3,2,1,0,4,3,1],[1,4,2,3,0,1,2],[0,1,3,2,4,0,1],[4,2,0,1,3,4,2],
 ];
 
-const DEMO_SNIPPETS = [
-  { id: '1', title: 'Animated Gradient Button', language: 'TypeScript', likes: 24, tags: ['css', 'animation'], color: 'from-blue-500 to-cyan-500' },
-  { id: '2', title: 'Custom React Hooks Collection', language: 'TypeScript', likes: 67, tags: ['react', 'hooks'], color: 'from-purple-500 to-pink-500' },
-  { id: '3', title: 'FastAPI Middleware Stack', language: 'Python', likes: 31, tags: ['fastapi', 'auth'], color: 'from-green-500 to-emerald-500' },
+function ContribCell({ value }: { value: number }) {
+  const opacity = value === 0 ? 0.05 : value === 1 ? 0.25 : value === 2 ? 0.45 : value === 3 ? 0.65 : 0.9;
+  return (
+    <div className="w-3 h-3 rounded-sm transition-opacity hover:opacity-100"
+      style={{ background: `rgba(0, 255, 179, ${opacity})` }}
+      title={`${value} contributions`} />
+  );
+}
+
+const SNIPPETS = [
+  { title: 'React useDebounce Hook', lang: 'TypeScript', likes: 94, stars: 48, time: '2d ago' },
+  { title: 'CSS Grid Layout System', lang: 'CSS', likes: 41, stars: 22, time: '5d ago' },
+  { title: 'Rust Concurrent Processor', lang: 'Rust', likes: 62, stars: 31, time: '1w ago' },
+];
+
+const BADGES = [
+  { icon: '🔥', label: 'Hot Streak', desc: '14 day streak' },
+  { icon: '🚀', label: 'Sharpshooter', desc: '10 snippets' },
+  { icon: '⭐', label: 'Rising Star', desc: '100+ likes' },
+  { icon: '🦾', label: 'TypeScript Pro', desc: 'Top TS author' },
+  { icon: '💎', label: 'Contributor', desc: '500+ XP' },
+  { icon: '🌍', label: 'Global Dev', desc: '5 languages' },
 ];
 
 const LANG_COLORS: Record<string, string> = {
-  TypeScript: 'from-blue-500 to-blue-600',
-  Python: 'from-emerald-500 to-teal-600',
-  JavaScript: 'from-yellow-400 to-orange-500',
-  Rust: 'from-orange-500 to-red-500',
+  TypeScript: '#3178C6', Python: '#3776AB', Rust: '#CE4A07',
+  Go: '#00ACD7', CSS: '#2965F1', JavaScript: '#F7DF1E',
 };
 
-export default async function ProfilePage({ params: { lang } }: { params: { lang: string } }) {
+export default function ProfilePage() {
+  const [tab, setTab] = useState('Overview');
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-
+    <div className="space-y-6 max-w-4xl">
       {/* Profile Header */}
-      <section className="bg-card border border-border rounded-3xl overflow-hidden">
-        {/* Banner */}
-        <div className="h-28 bg-gradient-to-br from-primary via-primary/80 to-accent relative">
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.4) 1px, transparent 0)',
-            backgroundSize: '20px 20px'
-          }} />
-          <Link href={`/${lang}/settings`} className="absolute top-3 right-3 p-2 bg-black/20 hover:bg-black/30 rounded-lg transition-colors">
-            <Edit3 size={14} className="text-white" />
-          </Link>
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="h-28 relative grid-pattern" style={{ background: 'linear-gradient(135deg, var(--neon-green-dim), var(--electric-blue-dim))' }}>
+          <button className="absolute top-3 right-3 px-3 py-1.5 rounded-lg border border-border bg-card/80 backdrop-blur-sm text-xs font-mono text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">
+            <Edit3 size={11} />
+            Edit Profile
+          </button>
         </div>
-
-        <div className="px-6 pb-6">
-          {/* Avatar */}
-          <div className="-mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-bold border-4 border-card shadow-md">
-              U
+        <div className="px-6 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-10 mb-4">
+            <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-card flex-shrink-0">
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, var(--neon-green), var(--electric-blue))' }} />
+              <span className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-black">U</span>
             </div>
-          </div>
-
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-bold text-foreground tracking-tight">Your Name</h1>
-              <p className="text-muted-foreground text-sm">@username</p>
-              <p className="text-sm text-foreground/80 mt-2 max-w-md">
-                Full-stack developer passionate about clean code, open source, and elegant solutions. Building the future one commit at a time. 🚀
-              </p>
-              <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1"><MapPin size={12} /> San Francisco, CA</div>
-                <div className="flex items-center gap-1"><LinkIcon size={12} /> <a href="#" className="text-primary hover:underline">github.com/user</a></div>
-                <div className="flex items-center gap-1"><Calendar size={12} /> Joined January 2025</div>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-xl font-bold text-foreground">Your Name</h1>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold text-black" style={{ background: 'var(--neon-green)' }}>PRO</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono border" style={{ borderColor: '#FFB347', color: '#FFB347', background: '#FFB34718' }}>Gold Tier</span>
               </div>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <button className="px-4 py-2 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors">
-                Edit Profile
-              </button>
-              <Link href={`/${lang}/settings`} className="p-2 rounded-xl border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                <Settings size={16} />
-              </Link>
+              <div className="text-sm text-muted-foreground font-mono mt-0.5">@yourusername</div>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-lg">Full-stack developer passionate about TypeScript, Rust, and open-source. Building the future one snippet at a time. 🚀</p>
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-4 gap-3 mt-6 pt-6 border-t border-border">
-            {DEMO_STATS.map(({ label, value }) => (
+          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mb-4">
+            {[
+              { icon: MapPin, text: 'San Francisco, CA' },
+              { icon: Link2, text: 'yourwebsite.dev' },
+              { icon: Twitter, text: '@yourtw' },
+              { icon: Github, text: 'yourgithub' },
+              { icon: Calendar, text: 'Joined March 2024' },
+            ].map(({ icon: Icon, text }) => (
+              <div key={text} className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer">
+                <Icon size={12} />
+                <span className="font-mono">{text}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-5">
+            {[
+              { value: '2,840', label: 'XP', color: 'var(--neon-green)' },
+              { value: '#12', label: 'Rank', color: '#FFB347' },
+              { value: '24', label: 'Snippets' },
+              { value: '1,240', label: 'Total Likes' },
+              { value: '128', label: 'Followers' },
+              { value: '14d 🔥', label: 'Streak' },
+            ].map(({ value, label, color }) => (
               <div key={label} className="text-center">
-                <div className="text-xl font-bold text-foreground">{value}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
+                <div className="text-lg font-bold font-mono" style={{ color: color ?? 'hsl(var(--foreground))' }}>{value}</div>
+                <div className="text-[10px] text-muted-foreground">{label}</div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-muted rounded-xl w-full">
-        {['Snippets', 'Liked', 'Following', 'Communities'].map((t, i) => (
-          <button key={t} className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${i === 0 ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
+      <div className="flex gap-1 p-1 rounded-xl border border-border bg-card w-fit">
+        {TABS.map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`px-4 py-2 rounded-lg text-xs font-mono transition-all ${tab === t ? 'text-[color:var(--neon-green)] bg-[var(--neon-green-dim)]' : 'text-muted-foreground hover:text-foreground'}`}>
             {t}
           </button>
         ))}
       </div>
 
-      {/* Snippets Grid */}
-      <div className="space-y-3">
-        {DEMO_SNIPPETS.map(s => (
-          <div key={s.id} className="flex items-center gap-4 p-4 bg-card border border-border rounded-2xl hover:border-primary/20 hover:shadow-sm transition-all cursor-pointer group">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${LANG_COLORS[s.language] ?? 'from-primary to-accent'} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
-              {s.language.slice(0, 2).toUpperCase()}
+      {tab === 'Overview' && (
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-5">
+          <div className="space-y-5">
+            {/* Contribution graph */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <TrendingUp size={14} style={{ color: 'var(--neon-green)' }} />
+                  Contribution Activity
+                </h2>
+                <span className="text-xs font-mono text-muted-foreground">Last 84 days</span>
+              </div>
+              <div className="overflow-x-auto">
+                <div className="flex gap-1">
+                  {CONTRIBUTION_DATA.map((week, wi) => (
+                    <div key={wi} className="flex flex-col gap-1">
+                      {week.map((day, di) => <ContribCell key={di} value={day} />)}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-muted-foreground">
+                  <span>Less</span>
+                  {[0.05, 0.25, 0.45, 0.65, 0.9].map(o => (
+                    <div key={o} className="w-3 h-3 rounded-sm" style={{ background: `rgba(0, 255, 179, ${o})` }} />
+                  ))}
+                  <span>More</span>
+                </div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-sm text-foreground">{s.title}</div>
-              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                {s.tags.map(t => (
-                  <span key={t} className="text-xs text-primary bg-primary/8 px-2 py-0.5 rounded-full">#{t}</span>
+
+            {/* Recent snippets */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <h2 className="text-sm font-semibold text-foreground mb-3">Recent Snippets</h2>
+              <div className="space-y-3">
+                {SNIPPETS.map((s) => (
+                  <div key={s.title} className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/40 transition-colors cursor-pointer">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: LANG_COLORS[s.lang] ?? '#64748B' }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">{s.title}</div>
+                      <div className="text-[10px] font-mono text-muted-foreground mt-0.5">{s.lang} · {s.time}</div>
+                    </div>
+                    <div className="flex items-center gap-2.5 text-[11px] font-mono text-muted-foreground">
+                      <span className="flex items-center gap-1"><Star size={11} /> {s.stars}</span>
+                      <span className="flex items-center gap-1"><Heart size={11} /> {s.likes}</span>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Heart size={14} />
-              <span className="text-xs font-semibold">{s.likes}</span>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* Badges */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
+                <Trophy size={13} style={{ color: '#FFB347' }} />
+                Achievements
+              </h2>
+              <div className="grid grid-cols-3 gap-2">
+                {BADGES.map((b) => (
+                  <div key={b.label} className="flex flex-col items-center gap-1 p-2.5 rounded-lg border border-border hover:border-[var(--neon-green)]/30 hover:bg-[var(--neon-green-dim)] transition-all cursor-pointer text-center">
+                    <span className="text-xl">{b.icon}</span>
+                    <span className="text-[10px] font-mono text-foreground leading-tight">{b.label}</span>
+                    <span className="text-[9px] text-muted-foreground">{b.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Lang stats */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-3">Languages</h2>
+              <div className="space-y-2.5">
+                {[
+                  { lang: 'TypeScript', pct: 42 },
+                  { lang: 'Rust', pct: 28 },
+                  { lang: 'CSS', pct: 18 },
+                  { lang: 'Python', pct: 12 },
+                ].map(({ lang, pct }) => (
+                  <div key={lang} className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-mono text-muted-foreground">{lang}</span>
+                      <span className="font-mono text-muted-foreground">{pct}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: LANG_COLORS[lang] }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
+      {tab !== 'Overview' && (
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <div className="w-12 h-12 rounded-xl border border-border flex items-center justify-center mx-auto mb-3">
+            <Clock size={20} className="text-muted-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground font-mono">{tab} view coming in v3.1</p>
+        </div>
+      )}
     </div>
   );
 }
