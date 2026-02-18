@@ -96,3 +96,54 @@ body { font-family: var(--font-sans); background-color: hsl(var(--background)); 
 .dot-pattern { background-image: radial-gradient(circle, hsl(var(--border) / 0.7) 1px, transparent 1px); background-size: 20px 20px; }
 .status-online { background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green); }
 .status-offline { background: hsl(var(--muted-foreground) / 0.5); }
+
+/* ─── Responsive layout helpers ─── */
+/* Desktop: sidebar 240px, topbar ~56px */
+/* Mobile: bottom nav 56px, top header 56px */
+
+.safe-area-pb { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.h-safe-area-inset-bottom { height: env(safe-area-inset-bottom, 0px); }
+
+/* Chat page full height on all screens */
+.chat-full {
+  height: calc(100vh - 56px - 56px); /* mobile: minus topbar + bottomnav */
+}
+@media (min-width: 1024px) {
+  .chat-full {
+    height: calc(100vh - 56px); /* desktop: minus topbar only */
+  }
+}
+
+/* Scrollbar none */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Better responsive text clamp */
+@media (max-width: 640px) {
+  .hero-title { font-size: 1.875rem; line-height: 1.1; }
+}
+
+/* neon-green-dim as inline color bg */
+.bg-neon-dim { background: var(--neon-green-dim); }
+.bg-blue-dim { background: var(--electric-blue-dim); }
+
+/* ─── Landscape mobile fix ─── */
+@media (max-height: 500px) and (orientation: landscape) {
+  /* Reduce sidebar vertical spacing in landscape */
+  .landscape-compact { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  /* Bottom nav slightly smaller */
+  nav.fixed.bottom-0 { height: 48px; }
+}
+
+/* ─── Desktop layout breakpoints ─── */
+/* xs: 0-639px, sm: 640-767px, md: 768-1023px, lg: 1024px+ */
+
+/* Tablet: sidebar collapses to icons-only */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* lg:hidden shows mobile header; tablet shows hamburger too */
+}
+
+/* Ensure content doesn't go under bottom nav on mobile */
+@media (max-width: 1023px) {
+  main { padding-bottom: 4.5rem; }
+}
