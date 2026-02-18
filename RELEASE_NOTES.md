@@ -1,8 +1,30 @@
-# 🚀 DevCanvas - Release Notes v1.0.1
+# 🚀 DevCanvas - Release Notes v1.0.2
 
 ## 📅 Release Date: February 18, 2026
 
-## 🔧 Critical Fixes
+## 🔧 Critical Fixes v1.0.2
+
+### BottomNav TypeScript Error - FIXED ✅
+
+**Problem:**
+```
+Type error: JSX element type 'item.icon' does not have any construct 
+or call signatures.
+```
+
+**Root Cause:**
+TypeScript tidak bisa meng-infer tipe `item.icon` ketika digunakan langsung sebagai JSX element karena icon bisa `null` atau `undefined` dalam array.
+
+**Solution:**
+1. ✅ Tambahkan proper TypeScript typing dengan `LucideIcon` type
+2. ✅ Definisikan `NavItem` interface yang jelas
+3. ✅ Extract icon ke variable `const Icon = item.icon!` sebelum render
+4. ✅ Gunakan conditional rendering yang lebih explicit
+
+**Files Changed:**
+- `components/layout/BottomNav.tsx` - Fixed TypeScript typing
+
+## 🔧 Critical Fixes v1.0.1
 
 ### NextAuth Type Error - FIXED ✅
 
@@ -158,8 +180,8 @@ MIT License - Free to use for personal and commercial projects
 
 ---
 
-**Current Version**: v1.0.1
+**Current Version**: v1.0.2
 **Status**: ✅ Production Ready
 **Last Updated**: February 18, 2026
 
-🎉 Happy coding! All errors are now resolved and your app is ready for deployment!
+🎉 Happy coding! All TypeScript errors are now resolved and your app is ready for deployment!
