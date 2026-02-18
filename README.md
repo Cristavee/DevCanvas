@@ -1,4 +1,4 @@
-# DevCanvas v2.0 — Code Community Platform
+# DevCanvas — Code Community Platform
 
 A modern community platform for developers to share code, join communities, and chat — like Reddit + Discord for coders.
 
