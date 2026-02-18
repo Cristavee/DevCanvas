@@ -1,170 +1,88 @@
-# DevCanvas - Developer Portfolio Showcase Platform
+# DevCanvas 🎨
 
-DevCanvas adalah platform showcase untuk developer yang memungkinkan mereka menampilkan proyek, code snippets, dan karya digital mereka dalam satu tempat yang terorganisir dan menarik.
+**A visual portfolio platform for developers** — showcase your code snippets beautifully, discover amazing projects, and connect with the community.
 
-## 🚀 Fitur Utama
+## ✨ Features
 
-- 📱 **Responsive Design** - Tampilan optimal di semua perangkat
-- 🌍 **Multi-language** - Mendukung Bahasa Indonesia dan English
-- 🎨 **Dark Mode** - Theme gelap dan terang
-- 🔐 **Authentication** - Login dengan GitHub/Google menggunakan NextAuth
-- 📤 **Upload Projects** - Upload dan showcase karya developer
-- 🔍 **Search & Filter** - Cari proyek berdasarkan bahasa, tags, dan kategori
-- 👤 **User Profiles** - Profil personal untuk setiap developer
-- 🛡️ **Admin Dashboard** - Panel admin untuk moderasi konten
+- 🏠 **Home** — Hero section, trending projects strip, latest projects grid
+- 🔍 **Search** — Full-text search with language + sort filters
+- 👤 **Profile** — Personal canvas with stats and project gallery  
+- ⬆️ **Upload** — Rich upload form with language picker, tags, visibility control
+- 🌟 **Following** — Activity feed and suggested developer sidebar
+- 🛡️ **Admin** — Stats dashboard + project moderation table
+- 🔐 **Auth** — GitHub OAuth + Email/Password signin & registration
 
-## 🛠️ Tech Stack
+## 🚀 Quick Start
 
-- **Framework**: Next.js 14.2 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Database**: MongoDB with Mongoose
-- **Authentication**: NextAuth.js
-- **Cloud Storage**: Cloudinary
-- **Deployment**: Vercel
-
-## 📋 Prerequisites
-
-Sebelum memulai, pastikan Anda memiliki:
-
-- Node.js 18+ terinstall
-- MongoDB Atlas account (atau MongoDB local)
-- Cloudinary account untuk image upload
-- GitHub OAuth App (optional, untuk login)
-- Google OAuth App (optional, untuk login)
-
-## 🔧 Installation
-
-### 1. Clone Repository
-
-```bash
-git clone https://github.com/Cristavee/DevCanvas.git
-cd DevCanvas
-```
-
-### 2. Install Dependencies
-
+### 1. Install dependencies
 ```bash
 npm install
 ```
 
-### 3. Setup Environment Variables
-
-Buat file `.env.local` di root directory:
-
-```env
-# MongoDB Connection
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/devcanvas?retryWrites=true&w=majority
-
-# NextAuth Configuration
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key-generate-with-openssl-rand-base64-32
-
-# Cloudinary Configuration
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-
-# GitHub OAuth (Optional)
-GITHUB_ID=your-github-oauth-id
-GITHUB_SECRET=your-github-oauth-secret
-
-# Google OAuth (Optional)
-GOOGLE_ID=your-google-oauth-id
-GOOGLE_SECRET=your-google-oauth-secret
-```
-
-### 4. Generate NextAuth Secret
-
+### 2. Configure environment
 ```bash
-openssl rand -base64 32
+cp .env.example .env.local
+# Fill in your MongoDB URI and NextAuth secret at minimum
 ```
 
-Copy hasilnya ke `NEXTAUTH_SECRET`
-
-### 5. Run Development Server
-
+### 3. Run locally
 ```bash
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000)
+Visit `http://localhost:3000` — it will redirect to `/en/` automatically.
 
-## 🚀 Deploy ke Vercel
+> **💡 Works without DB!** All pages have demo data fallback so you can develop without MongoDB connected.
 
-### Quick Deploy
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Cristavee/DevCanvas)
-
-### Manual Deploy
-
-1. Push code ke GitHub repository
-2. Import project di [Vercel Dashboard](https://vercel.com/new)
-3. Connect dengan GitHub repository
-4. Tambahkan Environment Variables di Vercel:
-   - `MONGODB_URI`
-   - `NEXTAUTH_URL` (gunakan production URL)
-   - `NEXTAUTH_SECRET`
-   - `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
-   - `CLOUDINARY_API_KEY`
-   - `CLOUDINARY_API_SECRET`
-5. Deploy!
-
-## 📁 Project Structure
+## 🗂️ Project Structure
 
 ```
-DevCanvas/
-├── app/                      # Next.js App Router
-│   ├── [lang]/              # Multi-language routes
-│   │   ├── page.tsx         # Home page
-│   │   ├── upload/          # Upload project page
-│   │   ├── search/          # Search page
-│   │   ├── profile/         # User profile
-│   │   └── admin/           # Admin dashboard
-│   ├── api/                 # API routes
-│   │   ├── auth/            # NextAuth endpoints
-│   │   └── projects/        # Project CRUD endpoints
-│   └── globals.css          # Global styles
-├── components/              # React components
-│   ├── ui/                  # shadcn/ui components
-│   ├── layout/              # Layout components
-│   ├── admin/               # Admin components
-│   └── modals/              # Modal components
-├── lib/                     # Utility functions
-│   ├── mongodb.ts           # MongoDB connection
-│   ├── utils.ts             # Helper functions
-│   └── get-dictionary.ts    # i18n utilities
-├── models/                  # Mongoose models
-│   ├── User.ts
-│   └── Project.ts
-├── dictionaries/            # i18n translations
-│   ├── en.json
-│   └── id.json
-└── middleware.ts            # Next.js middleware
+app/
+  [lang]/           # Localized routes (en / id)
+    page.tsx        # Home
+    search/         # Search & discovery
+    upload/         # Upload new project
+    profile/        # User profile
+    following/      # Following feed
+    admin/          # Admin dashboard
+  api/
+    auth/           # NextAuth + register endpoint
+    projects/       # CRUD + like endpoints
+
+components/
+  ProjectCard.tsx   # Card with code preview + like
+  layout/           # BottomNav
+  search/           # SearchBar, FilterDrawer
+  admin/            # AdminTable
+  ui/               # shadcn/ui base components
+
+models/
+  Project.ts        # Mongoose schema
+  User.ts           # Mongoose schema
 ```
 
-## 🐛 Troubleshooting
+## 🌐 Deployment (Vercel)
 
-### Error: Module not found
+1. Push to GitHub
+2. Import on [Vercel](https://vercel.com)
+3. Add environment variables in Vercel dashboard
+4. Deploy!
 
-Pastikan semua dependencies terinstall dengan `npm install`
+## 🔑 Required Environment Variables
 
-### MongoDB Connection Error
+| Variable | Description |
+|----------|-------------|
+| `MONGODB_URI` | MongoDB connection string |
+| `NEXTAUTH_SECRET` | Random secret (run: `openssl rand -base64 32`) |
+| `NEXTAUTH_URL` | Your app URL |
 
-1. Whitelist IP di MongoDB Atlas
-2. Cek connection string format
-3. Pastikan database user memiliki permission
+## 📦 Tech Stack
 
-### Vercel Build Error
-
-1. Set environment variables di Vercel
-2. Pastikan Next.js version up to date
-3. Review build logs
-
-## 📝 License
-
-MIT License
-
-## 👨‍💻 Author
-
-Created by [Cristavee](https://github.com/Cristavee)
+- **Next.js 14** (App Router)
+- **TypeScript**
+- **MongoDB + Mongoose**
+- **NextAuth.js** (GitHub OAuth + credentials)
+- **Tailwind CSS**
+- **shadcn/ui** components
+- **Zustand** (client state)
+- **Framer Motion** (animations)
